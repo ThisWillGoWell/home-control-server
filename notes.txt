@@ -1,0 +1,12 @@
+mvn install:install-file -Dfile='/mnt/c/Users/Willi/OneDrive/workspace/HomeControl/home-control-server/libs/com/philips/lighting/localsdk/1.0/localsdk-1.0.jar' -DgroupId=com.philips.lighting  -DartifactId=localsdk   -Dversion=1.0  -Dpackaging=jar   -DgeneratePom=true
+mvn install:install-file -Dfile="C:/Users/Willi/OneDrive/workspace/HomeControl/home-control-server/libs/com/philips/lighting/localsdk/1.0/localsdk-1.0.jar" -DgroupId="com.philips.lighting"  -DartifactId=localsdk   -Dversion="1.0"  -Dpackaging=jar   -DgeneratePom=true
+
+
+mvn install:install-file -Dfile='/mnt/c/Users/Willi/OneDrive/workspace/HomeControl/home-control-server/libs/com/philips/lighting/sdkresources/1.0/sdkresources-1.0.jar' -DgroupId=com.philips.lighting  -DartifactId=sdkresources   -Dversion=1.0  -Dpackaging=jar   -DgeneratePom=true
+
+mvn install:install-file -Dfile="C:/Users/Willi/OneDrive/workspace/HomeControl/home-control-server/libs/com/philips/lighting/sdkresources/1.0/sdkresources-1.0.jar" -DgroupId="com.philips.lighting"  -DartifactId="sdkresources"   -Dversion="1.0"  -Dpackaging=jar   -DgeneratePom=true
+
+
+
+
+

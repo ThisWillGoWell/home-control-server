@@ -14,8 +14,6 @@
     </parent>
 
     <dependencies>
-
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -51,7 +49,17 @@
             <version>2.7</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.philips.lighting</groupId>
+            <artifactId>sdkresources</artifactId>
+            <version>1.0</version>
+        </dependency>
 
+        <dependency>
+            <groupId>com.philips.lighting</groupId>
+            <artifactId>localsdk</artifactId>
+            <version>1.0</version>
+        </dependency>
 
         <dependency>
             <groupId>su.litvak.chromecast</groupId>

@@ -111,7 +111,7 @@ public class Engine{
                 return new Coffee(this);
             case "network":
                 return new NetworkSystem(this);
-            case "system/irRemote":
+            case "irRemote":
                 return new IrRemote(this);
             case "clock":
                 return new ClockDisplaySystem(this);
