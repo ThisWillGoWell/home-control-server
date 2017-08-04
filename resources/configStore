@@ -1,0 +1,35 @@
+{
+  "coffee" : {"init":[]},
+  "irRemote":{"init":[]},
+  "chromecast":{"init":[]},
+  "media":{"init":[]},
+  "hue":{},
+  "scheduler": {
+    "init": [{
+      "op": "schedule",
+      "name":"Brew Coffee, Turn on Classical at 8:15",
+      "cron": "0 15 08 1/1 * ? *",
+      "parcelArray":[
+        {"system": "irRemote", "op" : "set", "what": "preset", "to" : "bedroomChromecast"},
+        {"system" : "chromecast", "op":"play", "what": "radio",  "stationID":"classical","castName" : "bedroom"},
+        {"system": "coffee","op" : "makeCoffee"},
+        {"op":"set","system":"hue","what":"mode","to":"Dim"}
+      ]
+      },{
+        "op": "schedule",
+        "name":"Play News, Turn up Lights at 8:25",
+        "cron": "0 25 08 1/1 * ? *",
+        "parcelArray":[
+          { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"news","castName" : "bedroom"},
+          {"op":"set","system":"hue","what":"mode","to":"Standard"}
+        ]
+      },{
+        "op": "schedule",
+        "name":"Switch to Rock at 8:30",
+        "cron": "0 30 08 1/1 * ? *",
+        "parcelArray":[
+          { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"rock","castName" : "bedroom"}
+        ]
+      }
+    ]}
+}

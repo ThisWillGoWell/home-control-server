@@ -2,7 +2,6 @@ package system.irRemote;
 
 import controller.Engine;
 import parcel.Parcel;
-import parcel.ParcelArray;
 import parcel.StateValue;
 import parcel.SystemException;
 import system.SystemParent;
@@ -14,7 +13,7 @@ import system.hue.HueSystem;
  *
  */
 public class IrRemote  extends SystemParent{
-    public static final String systemIdentifier = "irRemote";
+    public static final String systemIdentifier = "system/irRemote";
     Parcel state;
 
 

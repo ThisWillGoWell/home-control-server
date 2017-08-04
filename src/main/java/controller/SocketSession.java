@@ -1,5 +1,6 @@
 package controller;
 
+import controller.subscriber.Subscriber;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import parcel.Parcel;

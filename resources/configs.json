@@ -1,0 +1,30 @@
+{
+  "Chromecast" : {"type": "chromecast"},
+  "HVAC": {"type": "hvac"},
+  "irRemote" : {"type": "irRemote"},
+  "scheduler": {
+    "type": "scheduler",
+    "init": [{
+      "op": "schedule",
+      "name":"Turn Up heat 1 minuet",
+      "cron": "0 0/1 * 1/1 * ? *",
+      "parcelArray":[{
+        "system": "HVAC",
+        "op" : "systemTempUp"
+      }]
+    },{
+      "op": "schedule",
+      "name":"Turn on the TV at 1:30",
+      "cron": "0 57 13 1/1 * ? *",
+      "parcelArray":[{
+        "system": "irRemote",
+        "op" : "set",
+        "what": "preset",
+        "to" : "bedroomStandard"
+      }]
+    }
+
+    ]}
+}
+
+

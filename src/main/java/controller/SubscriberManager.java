@@ -1,5 +1,6 @@
 package controller;
 
+import controller.subscriber.Subscriber;
 import parcel.Parcel;
 import parcel.SystemException;
 import system.SystemParent;
