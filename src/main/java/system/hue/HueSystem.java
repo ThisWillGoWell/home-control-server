@@ -49,10 +49,10 @@ public class HueSystem extends SystemParent{
         Parcel m = new Parcel();
         m.put("00:17:88:01:10:56:a4:5a-0b", "bathroom");
         m.put("00:17:88:01:10:56:a4:0d-0b", "lamp");
-        m.put("00:17:88:01:10:56:a4:2c-0b", "tv");
+        m.put("00:17:88:01:10:56:a4:2c-0b", "lamp");
         m.put("00:17:88:01:01:21:6b:1c-0b", "strip");
-        m.put("00:17:88:01:00:f7:1a:02-0b", "door");
-        m.put("00:17:88:01:10:2d:97:e3-0b", "fanWhite1");
+        m.put("00:17:88:01:00:f7:1a:02-0b", "fanColor");
+        m.put("00:17:88:01:10:2d:97:e3-0b", "closet");
         m.put("00:17:88:01:10:2f:88:27-0b", "fanWhite2");
         p.put("id2Name", new StateValue(m, StateValue.READ_PRIVLAGE));
 
@@ -494,7 +494,7 @@ public class HueSystem extends SystemParent{
                         if (lightCommands.size() > 0) {
                             Parcel p = lightCommands.remove(0);
                             if (connected) {
-                                switch (p.getString("   type")) {
+                                switch (p.getString("type")) {
                                     case "allLightUpdate":
                                         bridge.setLightStateForDefaultGroup((PHLightState) p.get("lightState"));
                                         break;

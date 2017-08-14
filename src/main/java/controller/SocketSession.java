@@ -57,9 +57,7 @@ public class SocketSession implements Subscriber, Runnable{
                 if(session.isOpen()) {
                     session.sendMessage(new TextMessage(p.toString()));
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
             }
         }

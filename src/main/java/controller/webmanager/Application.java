@@ -72,6 +72,8 @@ public class Application extends SpringBootServletInitializer{
     public static String readFile(String path, Charset encoding)
             throws IOException
     {
+        System.out.println("Working Directory = " +
+                System.getProperty("user.dir"));
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return new String(encoded, encoding);
     }

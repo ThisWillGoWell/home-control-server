@@ -55,20 +55,23 @@ public class Chromecast extends SystemParent{
     private static Parcel ChromecastNameMap(){
         Parcel p = new Parcel();
 
-        p.put("bedroom", "Chromecast-b793ae93f154fec6f865745b1c370202");
-        p.put("Chromecast-b793ae93f154fec6f865745b1c370202", "bedroom");
+        //p.put("bedroom", "Chromecast-b793ae93f154fec6f865745b1c370202");
+        //p.put("Chromecast-b793ae93f154fec6f865745b1c370202", "bedroom");
 
-        p.put("Chromecast-Audio-431665ca9c0421a896478832fb8256e4", "kitchen");
-        p.put("kitchen", "Chromecast-Audio-431665ca9c0421a896478832fb8256e4");
+        //p.put("Chromecast-Audio-431665ca9c0421a896478832fb8256e4", "kitchen");
+        //p.put("kitchen", "Chromecast-Audio-431665ca9c0421a896478832fb8256e4");
 
         p.put("Chromecast-Audio-ffaf991f20fac3e6622ed671f0b595ee","computer");
-        p.put("Google-Cast-Group-E3A504728DD84732A329ED77D9FDE09A","home");
+        p.put("computer", "Chromecast-Audio-ffaf991f20fac3e6622ed671f0b595ee");
 
-        p.put("Google-Cast-Group-529489EF4F0C44C6A9F2EF9527FE4FCC","livingroom");
-        p.put("livingroom", "Google-Cast-Group-529489EF4F0C44C6A9F2EF9527FE4FCC");
+        p.put("Google-Cast-Group-21EE1B0941604ECBBC54147269B673B8","home");
+        p.put("home", "Google-Cast-Group-21EE1B0941604ECBBC54147269B673B8");
 
-        p.put("Google-Cast-Group-21EE1B0941604ECBBC54147269B673B8","kitchen-outside");
-        p.put("kitchen-outside", "Google-Cast-Group-21EE1B0941604ECBBC54147269B673B8");
+        // p.put("Google-Cast-Group-529489EF4F0C44C6A9F2EF9527FE4FCC","livingroom");
+        //p.put("livingroom", "Google-Cast-Group-529489EF4F0C44C6A9F2EF9527FE4FCC");
+
+        //p.put("Google-Cast-Group-21EE1B0941604ECBBC54147269B673B8","kitchen-outside");
+        //p.put("kitchen-outside", "Google-Cast-Group-21EE1B0941604ECBBC54147269B673B8");
 
         return p;
     }
