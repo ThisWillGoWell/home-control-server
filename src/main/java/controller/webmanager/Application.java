@@ -13,7 +13,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -27,15 +29,21 @@ import java.util.Map;
 public class Application extends SpringBootServletInitializer{
 
 
-    private static Engine e = new Engine();
+    private static Engine e = null; //= new Engine();
 
     public static Engine getEngine() {
         return e;
     }
 
     public static void main(String[] args) {
+        e = new Engine();
 
         SpringApplication.run(Application.class, args);
+    }
+
+    @RequestMapping(value = "/hi", method = RequestMethod.GET)
+    public Object command() {
+        return "hello";
     }
 
     @RequestMapping(value = "/c", method = RequestMethod.POST)
@@ -77,5 +85,42 @@ public class Application extends SpringBootServletInitializer{
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return new String(encoded, encoding);
     }
+
+    /**
+     * Will run command in shell and reutrn the results as a string
+     * @param command command to be run
+     * @return the output
+     */
+    public static String executeCommand(String command) {
+
+        StringBuffer output = new StringBuffer();
+
+        Process p;
+        try {
+            p = Runtime.getRuntime().exec(command);
+            p.waitFor();
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            String line = "";
+            while ((line = reader.readLine())!= null) {
+                output.append(line + "\n");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return output.toString();
+
+    }
+
+    public static String getOS(){
+        return System.getProperty("os.name");
+    }
+    public static boolean isWindows(){
+        return getOS().contains("Windows");
+    }
+
 
 }

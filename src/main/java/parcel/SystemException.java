@@ -70,6 +70,8 @@ public class SystemException extends Exception{
         return new SystemException("Error in Engine: ", ENGINE_ERROR, p);
     }
 
-
-
+    @Override
+    public String toString() {
+        return String.format("%s on source:%s", super.toString(), source.toString());
+    }
 }

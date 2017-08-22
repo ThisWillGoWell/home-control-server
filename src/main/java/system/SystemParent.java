@@ -8,6 +8,9 @@ import controller.subscriber.Subscriber;
 import controller.subscriber.SubscriberManager;
 import parcel.Parcel;
 import parcel.SystemException;
+import controller.PS.GenericPS;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 /**
@@ -16,11 +19,13 @@ import parcel.SystemException;
 
 
 public abstract class SystemParent implements Runnable, Subscriber, Publisher {
-    
+
+
     protected Engine engine;
     private long updateInterval;
     protected String systemIdentifer;
     private Thread thread;
+    protected ConcurrentLinkedQueue<Parcel> updateQueue;
 
 
 
@@ -39,17 +44,18 @@ public abstract class SystemParent implements Runnable, Subscriber, Publisher {
         SubscriberManager.register(this);
 
         thread = new Thread(this);
+        this.updateQueue = new ConcurrentLinkedQueue();
 
     }
     private void registerSubscriber(Parcel p) throws SystemException {
         Logger.log(this, "registering subscriber " + p.toString(), Logger.LOG_LEVEL_INFO);
-        p.put("op", "get");
+        p.put(GenericPS.OP_KEY, "get");
         switch (p.getString("type")){
-            case "alert":
-                SubscriberManager.listen(p.getSubscriber("subscriber"), this);
+            case GenericPS.SUB_ALERT_TYPE:
+                SubscriberManager.listen(p.getSubscriber(GenericPS.SUBSCRIBER_KEY), this);
                 break;
-            case "change":
-                SubscriberManager.subscribe(p.getSubscriber("subscriber"), this, p);
+            case GenericPS.SUB_CHANGE_TYPE:
+                SubscriberManager.subscribe(p.getSubscriber(GenericPS.SUBSCRIBER_KEY), this, p);
                 break;
             default:
                 throw SystemException.WHAT_NOT_SUPPORTED(p);
@@ -78,22 +84,22 @@ public abstract class SystemParent implements Runnable, Subscriber, Publisher {
         Parcel response = null;
         Logger.log(this,p);
         try {
-            switch (p.getString("op")){
+            switch (p.getString(GenericPS.OP_KEY)){
                 default:
                     return process(p);
-                case "subscribe":
+                case GenericPS.SUB_COMMAND:
                     registerSubscriber(p);
                     response=  Parcel.RESPONSE_PARCEL("register success");
                     break;
-                case "deregister":
+                case GenericPS.DEREGISTER_COMMAND:
                     deregisterSubscriber(p.getSubscriber("subscriber"));
                     response = Parcel.RESPONSE_PARCEL("deregister success");
                     break;
-                case "update":
+                case GenericPS.UPDATE_COMMAND:
                     update();
                     response = Parcel.RESPONSE_PARCEL("updated");
                     break;
-                case "hello":
+                case GenericPS.HELLO_COMMAND:
                     response = Parcel.RESPONSE_PARCEL("hi");
                     break;
             }
@@ -117,7 +123,7 @@ public abstract class SystemParent implements Runnable, Subscriber, Publisher {
     }
 
 
-    public void init(){
+    public void init() throws SystemException {
 
 
     }
@@ -142,13 +148,23 @@ public abstract class SystemParent implements Runnable, Subscriber, Publisher {
         }
         catch (InterruptedException e) {
             Logger.log(this, e);
+        } catch (SystemException e) {
+            e.printStackTrace();
         }
     }
 
+    /**
+     * Run this on subscription alert
+     * @param p
+     */
     public void subscriptionAlert(Parcel p){
 
     }
 
+    /**
+     *
+     * @return
+     */
     public String getSystemIdentifer() {
         return systemIdentifer;
     }
@@ -161,4 +177,5 @@ public abstract class SystemParent implements Runnable, Subscriber, Publisher {
     public void update(){
 
     }
+
 }

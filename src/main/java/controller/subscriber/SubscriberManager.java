@@ -25,17 +25,17 @@ public class SubscriberManager{
      * @param s The Subscriber object who is subscribing to:
      * @param publisher the publisher that is being subscribed to
      * @param publisher the publisher that is being subscribed to
-     * @param requsetParcel parcel that when the response changes will update the subsriber
+     * @param requsetparcel parcel that when the response changes will update the subsriber
      *                      if null you will only get broadcasts to that publisher
      */
-    public static void subscribe(Subscriber s, Publisher publisher, Parcel requsetParcel){
+    public static void subscribe(Subscriber s, Publisher publisher, Parcel requsetparcel){
         if(!subscriptions.containsKey(publisher)){
             subscriptions.put(publisher, new ArrayList<>());
         }
-        Subscription  subscription= new Subscription(s,requsetParcel);
-        if(requsetParcel != null){
+        Subscription  subscription= new Subscription(s,requsetparcel);
+        if(requsetparcel != null){
             try {
-                subscription.lastValue =  publisher.process(requsetParcel).get("payload").toString();
+                subscription.lastValue =  publisher.process(requsetparcel).get("payload").toString();
             } catch (SystemException e) {
                 e.printStackTrace();
             }

@@ -19,12 +19,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Willi on 12/19/2016.
  * The core of the messageing system
  */
-public class Parcel extends HashMap<String, Object>{
+public class Parcel extends ConcurrentHashMap<String, Object> {
 
     private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
 
@@ -48,6 +49,24 @@ public class Parcel extends HashMap<String, Object>{
                 this.put(key, o);
             }
         }
+    }
+
+    /**
+     * Add a key-value that also is the key in the system envvs
+     * @param key the key for the parcel and the key of the system env
+     */
+
+    public void fromEnvString(String key){
+        this.put(key, System.getenv(key));
+    }
+
+    /**
+     * add a key-value where value is pulled
+     * @param key the key for the parcel
+     * @param systemKey the key in the system
+     */
+    public void fromEnvString(String key, String systemKey ){
+        this.put(key, System.getenv(systemKey));
     }
 
     /*

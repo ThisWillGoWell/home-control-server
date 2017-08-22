@@ -2,7 +2,7 @@
 package controller;
 
 import controller.webmanager.Application;
-import system.chromecast.Chromecast;
+import system.chromecast.ChromeCastSystem;
 import system.clockDisplay.ClockDisplaySystem;
 import system.coffee.Coffee;
 import system.engineManager.EngineManagement;
@@ -97,25 +97,25 @@ public class Engine{
      */
     private SystemParent makeSystem(String type) throws SystemException {
         switch (type) {
-            case "hvac":
+            case HvacSystem.systemIdentifier:
                 return new HvacSystem(this);
-            case "hue":
+            case HueSystem.systemIdentifier:
                 return new HueSystem(this);
-            case "scheduler":
+            case Scheduler.systemIdentifier:
                 return new Scheduler(this);
-            case "weather":
+            case Weather.systemIdentifier:
                 return new Weather(this);
-            case "coffee":
+            case Coffee.systemIdentifier:
                 return new Coffee(this);
-            case "network":
+            case NetworkSystem.systemIdentifier:
                 return new NetworkSystem(this);
-            case "irRemote":
+            case IrRemote.systemIdentifier:
                 return new IrRemote(this);
-            case "clock":
+            case ClockDisplaySystem.systemIdentifier:
                 return new ClockDisplaySystem(this);
-            case "chromecast":
-                return new Chromecast(this);
-            case "media":
+            case ChromeCastSystem.systemIdentifier:
+                return new ChromeCastSystem(this);
+            case MediaManager.systemIdentifier:
                 return new MediaManager(this);
 
             default:

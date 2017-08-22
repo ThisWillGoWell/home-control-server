@@ -2,6 +2,7 @@ package controller;
 
 import controller.subscriber.Publisher;
 import parcel.Parcel;
+import parcel.SystemException;
 import system.SystemParent;
 
 import java.io.File;
@@ -49,8 +50,11 @@ public class Logger {
         log(noSystem, e.toString(), LOG_LEVEL_ERROR);
     }
 
+
     public static void log(SystemParent source, Exception e){
+
         log(source.getSystemIdentifer(), e.toString(), LOG_LEVEL_ERROR);
+
     }
 
 
