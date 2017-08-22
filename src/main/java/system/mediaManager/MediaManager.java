@@ -5,7 +5,7 @@ import parcel.Parcel;
 import parcel.ParcelArray;
 import parcel.SystemException;
 import system.SystemParent;
-import system.chromecast.ChromecastParcels;
+
 import system.irRemote.IrRemoteParcels;
 
 /**
@@ -35,7 +35,7 @@ public class MediaManager extends SystemParent{
 
         ParcelArray op1Parcels = new ParcelArray();
         op1Parcels.add(IrRemoteParcels.setPreset("tvRoom", "bedroomChromecast" ));
-        op1Parcels.add(ChromecastParcels.playRadioParcel("bedroom", "news"));
+        //op1Parcels.add(ChromecastParcels.playRadioParcel("bedroom", "news"));
         ops.put("playNewsUpstairs", op1Parcels);
         p.put("ops", ops);
         return p;
