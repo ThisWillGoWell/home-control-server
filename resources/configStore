@@ -33,3 +33,43 @@
       }
     ]}
 }
+
+
+{
+  "chromecast":{"init":[]},
+  "media":{"init":[]},
+  "hue":{},
+  "scheduler": {
+    "init": [{
+      "op": "schedule",
+      "name":"Brew Coffee, Turn on Classical at 8:30",
+      "cron": "0 30 08 1/1 * ? *",
+      "parcelArray":[
+        {"system" : "chromecast", "op":"play", "what": "radio",  "stationID":"classical","castName" : "computer"},
+        {"op":"set","system":"hue","what":"mode","to":"Dim"}
+      ]
+    },{
+      "op": "schedule",
+      "name":"Play News, Turn up Lights at 8:35",
+      "cron": "0 35 08 1/1 * ? *",
+      "parcelArray":[
+        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"news","castName" : "computer"},
+        {"op":"set","system":"hue","what":"mode","to":"Standard"}
+      ]
+    },{
+      "op": "schedule",
+      "name":"Switch to Rock at 8:41",
+      "cron": "0 41 08 1/1 * ? *",
+      "parcelArray":[
+        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"rock","castName" : "computer"}
+      ]
+    },{
+      "op": "schedule",
+      "name":"Switch to Rock at 10:46",
+      "cron": "0 46 22 1/1 * ? *",
+      "parcelArray":[
+        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"rock","castName" : "computer"}
+      ]
+      }
+    ]}
+}
