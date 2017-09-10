@@ -10,6 +10,7 @@ import com.philips.lighting.model.*;
 import home.controller.Engine;
 import home.controller.Logger;
 import home.parcel.Parcel;
+import home.parcel.ParcelArray;
 import home.parcel.StateValue;
 import home.parcel.SystemException;
 import home.system.SystemParent;
@@ -47,13 +48,15 @@ public class HueSystem extends SystemParent{
         p.put("hueIP", new StateValue(HUE_IP, StateValue.READ_PRIVLAGE));
 
         Parcel m = new Parcel();
-        m.put("00:17:88:01:10:56:a4:5a-0b", "bathroom");
-        m.put("00:17:88:01:10:56:a4:0d-0b", "lamp");
-        m.put("00:17:88:01:10:56:a4:2c-0b", "lamp");
         m.put("00:17:88:01:01:21:6b:1c-0b", "strip");
-        m.put("00:17:88:01:00:f7:1a:02-0b", "fanColor");
-        m.put("00:17:88:01:10:2d:97:e3-0b", "closet");
-        m.put("00:17:88:01:10:2f:88:27-0b", "fanWhite2");
+        m.put( "00:17:88:01:02:c9:12:86-0b", "chandelier1");
+        m.put( "00:17:88:01:02:f6:e5:35-0b", "chandelier2");
+        m.put( "00:17:88:01:02:c9:14:52-0b", "chandelier3");
+        m.put("00:17:88:01:02:c9:13:9e-0b", "tallLamp" );
+        m.put("00:17:88:01:02:c9:14:86-0b", "tableLamp" );
+        m.put("00:17:88:01:02:c9:09:4c-0b", "kitchen1" );
+        m.put("00:17:88:01:02:ca:da:76-0b", "kitchen2");
+
         p.put("id2Name", new StateValue(m, StateValue.READ_PRIVLAGE));
 
         p.put("name2Light", new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
@@ -220,15 +223,34 @@ public class HueSystem extends SystemParent{
     }
 
 
+    private Parcel populateRooms() throws SystemException {
+        Parcel rooms = new Parcel();
+
+        for(PHGroup group : phHueSDK.getAllBridges().get(0).getResourceCache().getAllGroups()){
+            rooms.put(group.getName(), new ParcelArray());
+            for(String lightId : group.getLightIdentifiers()){
+                System.out.println(lightId);
+                rooms.getParcelArray(group.getName()).add(lightId);
+            }
+        }
+        return rooms;
+    }
+
     /*
     Loop thogh all lights in the ID2Name list and match them to a PLight object
      */
     private void populateName2Light(){
         try {
+            System.out.print("Yop");
             for(String id : state.getParcel("id2Name").keySet()){
                 for(PHLight light : allLights){
                     try {
-                        state.getParcel("name2Light").put(state.getParcel("id2Name").getString(light.getUniqueId()), light);
+                        try{
+                            state.getParcel("name2Light").put(state.getParcel("id2Name").getString(light.getUniqueId()), light);
+                        }catch (SystemException e){
+                            Logger.log(String.format("error with light: {name: %s, id:%s", light.getName(), light.getUniqueId()), Logger.LOG_LEVEL_DEBUG);
+                        }
+
                     }catch (Exception e)
                     {
                         e.printStackTrace();
@@ -551,8 +573,10 @@ public class HueSystem extends SystemParent{
         }
         //system.setAllLightsRGB(255,0,255);
 
-        for(PHScene s: system.cache.getAllScenes()){
-          //  System.out.println(s.getName());
+        for(PHGroup s: system.cache.getAllGroups()){
+            for(PHLight l : system.cache.getAllLights())
+                System.out.println(l.getUniqueId());
+            System.out.println(s.getName());
         }
 
 
@@ -574,6 +598,11 @@ public class HueSystem extends SystemParent{
         //system.allOn();
 
     }
+
+    public static void testGroups(){
+
+    }
+
 
 
 
