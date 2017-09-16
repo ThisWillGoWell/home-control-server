@@ -1,12 +1,24 @@
-mvn install:install-file -Dfile='/mnt/c/Users/Willi/OneDrive/workspace/HomeControl/home-control-server/libs/com/philips/lighting/localsdk/1.0/localsdk-1.0.jar' -DgroupId=com.philips.lighting  -DartifactId=localsdk   -Dversion=1.0  -Dpackaging=jar   -DgeneratePom=true
-mvn install:install-file -Dfile="C:/Users/Willi/OneDrive/workspace/HomeControl/home-control-server/libs/com/philips/lighting/localsdk/1.0/localsdk-1.0.jar" -DgroupId="com.philips.lighting"  -DartifactId=localsdk   -Dversion="1.0"  -Dpackaging=jar   -DgeneratePom=true
+#########################################
+Install phillips hue sdk to maven
+#########################################
+
+mvn install:install-file -Dfile='/mnt/c/Users/Willi/OneDrive/workspace/HomeControl/home-control-server/libs/com/philips/lighting/localsdk/1.1/huelocalsdk-1.1.jar' -DgroupId=com.philips.lighting  -DartifactId=localsdk   -Dversion=1.0  -Dpackaging=jar   -DgeneratePom=true
+
+mvn install:install-file -Dfile="C:\Users\Willi\OneDrive\workspace\HomeControl\home-control-server\libs\com\philips\lighting\localsdk\1.1\huelocalsdk-1.1.jar" -DgroupId="com.philips.lighting"  -DartifactId=localsdk   -Dversion="1.1"  -Dpackaging=jar   -DgeneratePom=true
 
 
 mvn install:install-file -Dfile='/mnt/c/Users/Willi/OneDrive/workspace/HomeControl/home-control-server/libs/com/philips/lighting/sdkresources/1.0/sdkresources-1.0.jar' -DgroupId=com.philips.lighting  -DartifactId=sdkresources   -Dversion=1.0  -Dpackaging=jar   -DgeneratePom=true
 
-mvn install:install-file -Dfile="C:/Users/Willi/OneDrive/workspace/HomeControl/home-control-server/libs/com/philips/lighting/sdkresources/1.0/sdkresources-1.0.jar" -DgroupId="com.philips.lighting"  -DartifactId="sdkresources"   -Dversion="1.0"  -Dpackaging=jar   -DgeneratePom=true
+mvn install:install-file -Dfile="C:\Users\Willi\OneDrive\workspace\HomeControl\home-control-server\libs\com\philips\lighting\sdkresources\1.1\huesdkresources-1.1.jar" -DgroupId="com.philips.lighting"  -DartifactId="sdkresources"   -Dversion="1.1"  -Dpackaging=jar   -DgeneratePom=true
+
+###########################################
+copy file to server
+####################################
+
+scp /mnt/c/Users/Willi/OneDrive/workspace/HomeControl/home-control-server/target/home-control-server-0.1.0.jar will@homecontrol.com:~/homeControl/home-control-server-0.1.0.jar
 
 
-
-
-
+TODO
+1) set all this stuff as env variables
+2) Schedule
+3) Chromecast Audio

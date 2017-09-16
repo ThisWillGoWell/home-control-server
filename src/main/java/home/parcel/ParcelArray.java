@@ -4,6 +4,7 @@ import org.json.hue.JSONArray;
 import org.json.hue.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by Willi on 12/26/2016.
@@ -14,6 +15,13 @@ public class ParcelArray extends ArrayList<Object>{
     public ParcelArray(){
         super();
     }
+
+    public ParcelArray(Collection c){
+        for(Object o : c){
+            this.add(c);
+        }
+    }
+
 
     public ParcelArray(ParcelArray pa) throws SystemException {
         super();
@@ -87,26 +95,25 @@ public class ParcelArray extends ArrayList<Object>{
         return pa2;
     }
 
-
-
-
     public String toString(){
-        String s = "[";
+        StringBuilder s = new StringBuilder("[");
         for(Object o : this) {
-
             if (Parcel.isWrapperType(o.getClass())){
-                s+= o.toString() + ", ";
+                s.append(o.toString());
             }
             else {
-                s += "\"" + o.toString() + "\", ";
+                s.append('"');
+                s.append(o);
+                s.append('"');
             }
-
+            s.append(", ");
         }
-        if(size() > 0) {
-            s = s.substring(0, s.length() - 2);
+        if( s.length() == 1){
+            return "[]";
         }
-        s+= "]";
-        return s;
+        s.delete(s.length()-2, s.length());
+        s.append("]");
+        return s.toString();
     }
 
     public String getString(int index) throws SystemException {

@@ -1,6 +1,8 @@
 package home.system.hue;
 
+import com.philips.lighting.model.PHLight;
 import home.parcel.Parcel;
+import home.parcel.SystemException;
 
 import java.util.ArrayList;
 
@@ -27,7 +29,11 @@ class HueMotionScene {
         this.system = system;
         this.lastUpdateTime = System.currentTimeMillis();
         this.startTime = lastUpdateTime;
-        system.process(Parcel.SET_PARCEL("","allLights","off"));
+        try {
+            system.process(Parcel.SET_PARCEL("","allLights","off"));
+        } catch (SystemException e) {
+            e.printStackTrace();
+        }
     }
 
     long getUpdateTime(){
@@ -39,14 +45,14 @@ class HueMotionScene {
     if yes, do one "step" of the program
     @NOTE: if the system laggs at all, then steps will be missed ie missed steps are missed
      */
-    void update() {
+    void update() throws SystemException {
         if (lastUpdateTime + updateInterval <= System.currentTimeMillis()) {
             lastUpdateTime = System.currentTimeMillis();
             step();
         }
     }
 
-    void step(){
+    void step() throws SystemException {
 
     }
 }
@@ -54,7 +60,7 @@ class HueMotionScene {
 class RainbowScene extends HueMotionScene{
     private long cycleTime;
 
-    RainbowScene(HueSystem system){
+    RainbowScene(HueSystem system) throws SystemException {
         super(system, 500);
         startTime =System.currentTimeMillis();
         cycleTime = 10000;
@@ -78,7 +84,7 @@ class RainbowScene extends HueMotionScene{
         step();
     }
 
-    void step(){
+    void step() throws SystemException {
         //Determine
         int count = 0;
         long startHue = (System.currentTimeMillis() % cycleTime) *65535/cycleTime;
@@ -90,7 +96,7 @@ class RainbowScene extends HueMotionScene{
 
     }
 }
-
+/*
 class HueShiftScene extends HueMotionScene{
     private long cycleTime;
 
@@ -100,7 +106,7 @@ class HueShiftScene extends HueMotionScene{
         cycleTime = 10000;
         //Determine order;
 
-        Parcel name2Light = null;
+        Parcel lights = null;
         lights.add("tv");
         lights.add("strip");
         lights.add("lamp");
@@ -126,13 +132,13 @@ class HueShiftScene extends HueMotionScene{
         system.process(p);
 
     }
-}
+}*/
 
 
 class RandomColors extends HueMotionScene{
     private long minFlashTime = 40;
     private long maxFlashTime = 100;
-    RandomColors(HueSystem system){
+    RandomColors(HueSystem system) throws SystemException {
         super(system, 500);
         startTime =System.currentTimeMillis();
         lights.add("tv");
@@ -151,7 +157,7 @@ class RandomColors extends HueMotionScene{
         step();
     }
 
-    void step(){
+    void step() throws SystemException {
         Parcel p = HueParcel.SET_LIGHT_HSV_PARCEL(lights.get((int) (Math.random() * lights.size())), (int) (Math.random()*65535), -1,-1);
         p = HueParcel.ADD_TRANS_TIME(p, 0);
         updateInterval = (long) (Math.random() * (maxFlashTime-minFlashTime) + minFlashTime);

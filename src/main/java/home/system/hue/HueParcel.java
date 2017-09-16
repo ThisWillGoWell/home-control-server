@@ -5,6 +5,8 @@ import com.philips.lighting.model.PHLight;
 import com.philips.lighting.model.PHLightState;
 import home.parcel.Parcel;
 
+import static home.controller.PS.HuePS.*;
+
 /**
  * Created by Willi on 12/27/2016.
  */
@@ -64,26 +66,6 @@ public class HueParcel{
         return p;
     }
 
-    /**
-     * RGB
-     */
-
-    public static Parcel SET_LIGHT_RGB_PARCEL(String light, int R, int G, int B){
-        Parcel p = Parcel.SET_PARCEL("lights","light", "HSV");
-        p.put("light",light);
-        p.put("R", R);
-        p.put("G", G);
-        p.put("B", B);
-        return p;
-    }
-
-    public static Parcel SET_ALL_LIGHTS_RGB_PARCEL( int R, int G, int B){
-        Parcel p = Parcel.SET_PARCEL("lights","allLights", "HSV");
-        p.put("R", R);
-        p.put("G", G);
-        p.put("B", B);
-        return p;
-    }
 
     /**
      *
@@ -143,10 +125,26 @@ public class HueParcel{
 
     static Parcel SCENE_UPDATE(String sceneId){
         Parcel p = new Parcel();
-        p.put("type", "sceneUpdate");
-        p.put("sceneID", sceneId);
+        p.put(TYPE_KEY, SCENE_UPDATE_LIGHT_COMMAND);
+        p.put(SCENE_ID_KEY, sceneId);
         return p;
     }
+
+    static Parcel GROUP_UPDATE(String groupID, PHLightState state){
+        Parcel p = new Parcel();
+        p.put(TYPE_KEY, GROUP_UPDATE_LIGHT_COMMAND);
+        p.put(GROUP_KEY, groupID);
+        p.put(PH_LIGHT_STATE_KEY, state);
+        return p;
+    }
+
+    static Parcel GENERATE_STATE(boolean power){
+        Parcel p = new Parcel();
+        p.put(LIGHT_STATE_POWER_KEY, false);
+        return p;
+    }
+
+
 
 
 }

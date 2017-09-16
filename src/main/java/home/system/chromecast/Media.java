@@ -33,6 +33,10 @@ class RSS {
         return getNPRRss("https://www.npr.org/templates/rss/podlayer.php?id=1095");
     }
 
+    static Parcel getMorningEdition() throws SystemException{
+        return getNPRRss("https://www.npr.org/rss/podcast.php?id=510318");
+    }
+
 
 }
 
@@ -54,7 +58,7 @@ class radioStation{
         p.put(PS.ChromeCastPS.RADIO_ROCK , makeRadioUrl("Third Rock Radio","http://rfcmedia2.streamguys1.com/thirdrock.mp3"));
         p.put(PS.ChromeCastPS.RADIO_NEWS , makeRadioUrl("NPR Hourly update", RSS.getHourMeidaInfo()));
         p.put(PS.ChromeCastPS.RADIO_BUSINESS , makeRadioUrl("NPR Business Stories", RSS.getBusinessStory()));
-
+        p.put(PS.ChromeCastPS.RADIO_MORNING_NEWS, makeRadioUrl("NPR Morning Edition", RSS.getMorningEdition()));
         return p;
     }
 
@@ -64,7 +68,6 @@ class radioStation{
         p.put("title", title);
         p.put("url", url);
         p.put("app","meida-player");
-
         return p;
     }
 

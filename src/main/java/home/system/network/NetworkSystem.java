@@ -10,6 +10,9 @@ import home.parcel.ParcelArray;
 import home.parcel.SystemException;
 
 import home.system.SystemParent;
+import static home.controller.PS.NetworkSystemStrings.*;
+import static home.controller.PS.NetworkDevices.*;
+import static home.controller.PS.NETWORK_SYSTEM_NAME;
 
 
 
@@ -30,18 +33,18 @@ public class NetworkSystem extends SystemParent{
     }
 
 
-    public static final String systemIdentifier = NetworkSystemStrings.NETWORK_SYSTEM_NAME1;
+    public static final String systemIdentifier = NETWORK_SYSTEM_NAME;
 
 
     private static Parcel DEFAULT_SYSTEM_STATE() throws SystemException {
         Parcel p = new Parcel();
-        p.put(NetworkSystemStrings.DEVICES_KEY, DEVICESS());
-        p.put(NetworkSystemStrings.TIMEOUT_KEY,5000);
+        p.put(DEVICES_KEY, DEVICESS());
+        p.put(TIMEOUT_KEY,5000);
 
         ParcelArray macs = new ParcelArray();
-        for(String key: p.getParcel(NetworkSystemStrings.DEVICES_KEY).keySet())
+        for(String key: p.getParcel(DEVICES_KEY).keySet())
         {
-            macs.add(p.getParcel(NetworkSystemStrings.DEVICES_KEY).getParcel(key).getString(NetworkSystemStrings.MAC_KEY));
+            macs.add(p.getParcel(DEVICES_KEY).getParcel(key).getString(MAC_KEY));
         }
         p.put("macs", macs);
         return p;
@@ -53,21 +56,23 @@ public class NetworkSystem extends SystemParent{
 
     private static Parcel DEVICE_PARCEL(String mac, String ip){
         Parcel p = new Parcel();
-        p.put(NetworkSystemStrings.CONNECTED_KEY, false);
-        p.put(NetworkSystemStrings.MAC_KEY, mac);
-        p.put(NetworkSystemStrings.IP_KEY,ip);
-        p.put(NetworkSystemStrings.LAST_PING_TIME_KEY,0);
+        p.put(CONNECTED_KEY, false);
+        p.put(MAC_KEY, mac);
+        p.put(IP_KEY,ip);
+        p.put(LAST_PING_TIME_KEY,0);
         return p;
 
     }
 
     private static Parcel DEVICESS() {
         Parcel p = new Parcel();
-        p.put(NetworkSystemStrings.DINOLIGHT, DEVICE_PARCEL(NetworkSystemStrings.DINOLIGHT_MAC));
-        p.put(NetworkSystemStrings.CHROMECAST_AUDIO_BEDROOM, DEVICE_PARCEL(NetworkSystemStrings.CHROMECAST_AUDIO_BEDROOM_MAC));
-        p.put(NetworkSystemStrings.PHILIPS_HUE, DEVICE_PARCEL(NetworkSystemStrings.PHILIPS_HUE_MAC));
-        p.put(NetworkSystemStrings.WILL_PHONE_ANDROID, DEVICE_PARCEL(NetworkSystemStrings.WILL_PHONE_ANDROID_MAC, "192.168.1.9"));
-        p.put(NetworkSystemStrings.WILL_PHONE_IPHONE, DEVICE_PARCEL(NetworkSystemStrings.WILL_PHONE_IPHONE_MAC));
+        p.put(DINOLIGHT, DEVICE_PARCEL(DINOLIGHT_MAC));
+        p.put(CHROMECAST_AUDIO_BEDROOM, DEVICE_PARCEL(CHROMECAST_AUDIO_BEDROOM_MAC));
+        p.put(PHILIPS_HUE, DEVICE_PARCEL(PHILIPS_HUE_MAC));
+        p.put(WILL_PHONE_ANDROID, DEVICE_PARCEL(WILL_PHONE_ANDROID_MAC, "192.168.1.9"));
+        p.put(WILL_PHONE_IPHONE, DEVICE_PARCEL(WILL_PHONE_IPHONE_MAC));
+        p.put(CHROMECAST_BEDROOM, DEVICE_PARCEL(CHROMECAST_BEDROOM_MAC, "192.168.1.4"));
+        p.put(CHROMECAST_LIVINGROOM, DEVICE_PARCEL(CHROMECAST_LIVINGROOM_MAC));
         return p;
     }
 
@@ -84,10 +89,10 @@ public class NetworkSystem extends SystemParent{
         switch (p.getString("op")){
             case "get":
                 switch (p.getString("what")){
-                    case NetworkSystemStrings.CONNECTED_KEY:
-                        return Parcel.RESPONSE_PARCEL(isConnected(p.getString(NetworkSystemStrings.DEVICE_KEY)));
-                    case NetworkSystemStrings.IP_KEY:
-                        return Parcel.RESPONSE_PARCEL(getIP(p.getString(NetworkSystemStrings.DEVICE_KEY)));
+                    case CONNECTED_KEY:
+                        return Parcel.RESPONSE_PARCEL(isConnected(p.getString(DEVICE_KEY)));
+                    case IP_KEY:
+                        return Parcel.RESPONSE_PARCEL(getIP(p.getString(DEVICE_KEY)));
 
                     default:
                         throw SystemException.WHAT_NOT_SUPPORTED(p);
@@ -99,11 +104,11 @@ public class NetworkSystem extends SystemParent{
     }
 
     private boolean  isConnected(String name) throws SystemException {
-        return state.getParcel(NetworkSystemStrings.DEVICES_KEY).getParcel(name).getBoolean(NetworkSystemStrings.CONNECTED_KEY);
+        return state.getParcel(DEVICES_KEY).getParcel(name).getBoolean(CONNECTED_KEY);
     }
 
     private String getIP(String name) throws SystemException {
-        return state.getParcel(NetworkSystemStrings.DEVICES_KEY).getParcel(name).getString(NetworkSystemStrings.IP_KEY);
+        return state.getParcel(DEVICES_KEY).getParcel(name).getString(IP_KEY);
     }
 
     /*
@@ -128,15 +133,15 @@ public class NetworkSystem extends SystemParent{
 
 
             if (arpTable != null) {
-                for (String key : state.getParcel(NetworkSystemStrings.DEVICES_KEY).keySet()) {
-                    Parcel deviceParcel = state.getParcel(NetworkSystemStrings.DEVICES_KEY).getParcel(key);
-                    String mac = deviceParcel.getString(NetworkSystemStrings.MAC_KEY);
-                    if (!deviceParcel.getBoolean(NetworkSystemStrings.CONNECTED_KEY) && arpTable.contains(mac)) {
-                        deviceParcel.put(NetworkSystemStrings.IP_KEY, arpTable.get(mac));
+                for (String key : state.getParcel(DEVICES_KEY).keySet()) {
+                    Parcel deviceParcel = state.getParcel(DEVICES_KEY).getParcel(key);
+                    String mac = deviceParcel.getString(MAC_KEY);
+                    if (!deviceParcel.getBoolean(CONNECTED_KEY) && arpTable.contains(mac)) {
+                        deviceParcel.put(IP_KEY, arpTable.get(mac));
                     }
 
-                    if(!deviceParcel.getString(NetworkSystemStrings.IP_KEY).equals("")){
-                        String pingResult = Application.executeCommand(String.format(pingCommand, deviceParcel.getString(NetworkSystemStrings.IP_KEY)));
+                    if(!deviceParcel.getString(IP_KEY).equals("")){
+                        String pingResult = Application.executeCommand(String.format(pingCommand, deviceParcel.getString(IP_KEY)));
                         boolean pingRespnse;
                         if(Application.isWindows()){
                             pingRespnse = processPingResultWindows(pingResult);
@@ -144,14 +149,14 @@ public class NetworkSystem extends SystemParent{
                             pingRespnse = processPingResultUnix(pingResult);
                         }
                         if(pingRespnse){
-                            deviceParcel.put(NetworkSystemStrings.LAST_PING_TIME_KEY, System.currentTimeMillis());
+                            deviceParcel.put(LAST_PING_TIME_KEY, System.currentTimeMillis());
                         }
 
-                        deviceParcel.put(NetworkSystemStrings.CONNECTED_KEY,
-                                System.currentTimeMillis() - deviceParcel.getLong(NetworkSystemStrings.LAST_PING_TIME_KEY) < state.getLong(NetworkSystemStrings.TIMEOUT_KEY) );
+                        deviceParcel.put(CONNECTED_KEY,
+                                System.currentTimeMillis() - deviceParcel.getLong(LAST_PING_TIME_KEY) < state.getLong(TIMEOUT_KEY) );
 
                     }else{
-                        deviceParcel.put(NetworkSystemStrings.CONNECTED_KEY, false);
+                        deviceParcel.put(CONNECTED_KEY, false);
                     }
                 }
             }
@@ -225,13 +230,13 @@ public class NetworkSystem extends SystemParent{
         subPar.put("op", "subscribe");
         subPar.put("subscriber", system2);
         subPar.put("type", "change");
-        subPar.put("what",NetworkSystemStrings.CONNECTED_KEY);
+        subPar.put("what",CONNECTED_KEY);
         subPar.put("device","will-phone-android");
-        System.out.println(network.command(PP.NetworkPP.GetConnected(NetworkSystemStrings.WILL_PHONE_ANDROID)));
-        System.out.println(network.command(PP.NetworkPP.SubscribeToConnected(system2, NetworkSystemStrings.WILL_PHONE_ANDROID)));
+        System.out.println(network.command(PP.NetworkPP.GetConnected(WILL_PHONE_ANDROID)));
+        System.out.println(network.command(PP.NetworkPP.SubscribeToConnected(system2, WILL_PHONE_ANDROID)));
         subPar.put("op", "get");
         subPar.put("what", "ip");
-        subPar.put("device", NetworkSystemStrings.CHROMECAST_AUDIO_BEDROOM);
+        subPar.put("device", CHROMECAST_AUDIO_BEDROOM);
         System.out.println(network.command(subPar));
         while(true){
 

@@ -1,6 +1,8 @@
 package home.system.irRemote;
 
 import home.controller.Engine;
+import home.controller.subscriber.Subscriber;
+import home.controller.subscriber.SubscriberManager;
 import home.parcel.Parcel;
 import home.parcel.StateValue;
 import home.parcel.SystemException;
@@ -25,7 +27,7 @@ public class IrRemote  extends SystemParent{
 
         Parcel keys = new Parcel();
         keys.put("volumeUp", "KEY_VOLUMEUP");
-        keys.put("volumeDown", "KEY_VOLUMEUDOWN");
+        keys.put("volumeDown", "KEY_VOLUMEDOWN");
         keys.put("power", "KEY_POWER");
         keys.put("volumeUp", "KEY_VOLUMEUP");
         keys.put("autioIn", "KEY_AUDIO");
@@ -180,7 +182,18 @@ public class IrRemote  extends SystemParent{
 
     }
 
+    /**
+     *
+     * @param p {remote, command}
+     * @return
+     * @throws SystemException
+     */
     private Parcel press(Parcel p) throws SystemException {
+        //check if the press is valid
+        if(state.getParcel("keyCodes").contains(p.getString("command"))){
+            p.put("remoteCode", state.getParcel("remoteStates").getParcel(p.getString("remote")).getString("remoteCode"));
+            SubscriberManager.broadcast(this, p);
+        }
 
         return Parcel.RESPONSE_PARCEL("button command Pressed");
     }

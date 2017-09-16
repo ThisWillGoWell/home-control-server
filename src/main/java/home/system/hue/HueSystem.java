@@ -10,7 +10,6 @@ import com.philips.lighting.model.*;
 import home.controller.Engine;
 import home.controller.Logger;
 import home.parcel.Parcel;
-import home.parcel.ParcelArray;
 import home.parcel.StateValue;
 import home.parcel.SystemException;
 import home.system.SystemParent;
@@ -18,6 +17,9 @@ import home.system.SystemParent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static home.controller.PS.HuePS.*;
+import static home.controller.PS.GenericPS.*;
 
 /**
  * Created by Willi on 9/26/2016.
@@ -40,33 +42,26 @@ public class HueSystem extends SystemParent{
     private long lastSendTime;
     private Parcel state;
     private boolean connected = false;
+    private PHAccessPoint accessPoint;
 
-    private    PHAccessPoint accessPoint;
-    private static Parcel LIGHT_DEAFULT_STATE(){
+    //Secrete Strings
+    //Light Update Commands
+
+    private static Parcel LIGHT_DEFAULT_STATE(){
         Parcel p = new Parcel();
-        p.put("hueUsername", new StateValue("iixA66asLRYI-jOBsmrwjIhpu7VYkTl1R1CitgZa", StateValue.READ_PRIVLAGE));
-        p.put("hueIP", new StateValue(HUE_IP, StateValue.READ_PRIVLAGE));
+        p.put(ID_2_LIGHT_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
+        p.put(LIGHT_2_ID_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
 
-        Parcel m = new Parcel();
-        m.put("00:17:88:01:01:21:6b:1c-0b", "strip");
-        m.put( "00:17:88:01:02:c9:12:86-0b", "chandelier1");
-        m.put( "00:17:88:01:02:f6:e5:35-0b", "chandelier2");
-        m.put( "00:17:88:01:02:c9:14:52-0b", "chandelier3");
-        m.put("00:17:88:01:02:c9:13:9e-0b", "tallLamp" );
-        m.put("00:17:88:01:02:c9:14:86-0b", "tableLamp" );
-        m.put("00:17:88:01:02:c9:09:4c-0b", "kitchen1" );
-        m.put("00:17:88:01:02:ca:da:76-0b", "kitchen2");
+        p.put(SCENE_2_ID_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
+        p.put(ID_2_SCENE_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
 
-        p.put("id2Name", new StateValue(m, StateValue.READ_PRIVLAGE));
+        p.put(GROUP_2_ID_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
+        p.put(ID_2_GROUP_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
 
-        p.put("name2Light", new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
-        p.put("mode", new StateValue("", StateValue.READ_WRITE_PRIVLAGE));
-        p.put("liveMode", new StateValue(false, StateValue.READ_WRITE_PRIVLAGE));
-        p.put("name2Scene", new StateValue(new Parcel(), StateValue.READ_WRITE_PRIVLAGE));
-        p.put("sendLatency", new StateValue(40, StateValue.READ_WRITE_PRIVLAGE));
+        p.put(SEND_PERIOD_KEY, new StateValue(40, StateValue.READ_WRITE_PRIVLAGE));
+
         return p;
     }
-
 
     private PHSceneListener sceneListener = new PHSceneListener() {
         @Override
@@ -101,7 +96,7 @@ public class HueSystem extends SystemParent{
     {
         super(systemIdentifier, e, 10);
         phHueSDK = PHHueSDK.getInstance();
-        state = LIGHT_DEAFULT_STATE();
+        state = LIGHT_DEFAULT_STATE();
         lightCommands = new ArrayList<>();
         SystemParent system = this;
         sdkListener = new PHSDKListener() {
@@ -133,10 +128,11 @@ public class HueSystem extends SystemParent{
                 heartbeatManager.enableLightsHeartbeat(b, 500);
                 bridge = b;
                 cache = b.getResourceCache();
-                allLights = cache.getAllLights();
-                //Populate
-                populateName2Light();
-                populateName2Scene();
+                try {
+                    populateFromCache();
+                } catch (SystemException e1) {
+                    e1.printStackTrace();
+                }
                 // Here it is recommended to set your connected bridge in your sdk object (as above) and start the heartbeat.
                 // At this point you are connected to a bridge so you should pass control to your main program/activity.
                 // The username is generated randomly by the bridge.
@@ -208,13 +204,10 @@ public class HueSystem extends SystemParent{
 
             }
         };
+
         accessPoint = new PHAccessPoint();
-        try {
-            accessPoint.setIpAddress(state.getString("hueIP"));
-            accessPoint.setUsername(state.getString("hueUsername"));
-        } catch (SystemException e1) {
-            e1.printStackTrace();
-        }
+        accessPoint.setIpAddress(HUE_IP);
+        accessPoint.setUsername(HUE_USERNAME);
 
         phHueSDK.getNotificationManager().registerSDKListener(sdkListener);
         phHueSDK.connect(accessPoint);
@@ -222,112 +215,107 @@ public class HueSystem extends SystemParent{
         phHueSDK.setDeviceName("server");
     }
 
-
-    private Parcel populateRooms() throws SystemException {
-        Parcel rooms = new Parcel();
-
-        for(PHGroup group : phHueSDK.getAllBridges().get(0).getResourceCache().getAllGroups()){
-            rooms.put(group.getName(), new ParcelArray());
-            for(String lightId : group.getLightIdentifiers()){
-                System.out.println(lightId);
-                rooms.getParcelArray(group.getName()).add(lightId);
-            }
-        }
-        return rooms;
-    }
-
     /*
-    Loop thogh all lights in the ID2Name list and match them to a PLight object
+    Populate the State Parcel using the cache
      */
-    private void populateName2Light(){
-        try {
-            System.out.print("Yop");
-            for(String id : state.getParcel("id2Name").keySet()){
-                for(PHLight light : allLights){
-                    try {
-                        try{
-                            state.getParcel("name2Light").put(state.getParcel("id2Name").getString(light.getUniqueId()), light);
-                        }catch (SystemException e){
-                            Logger.log(String.format("error with light: {name: %s, id:%s", light.getName(), light.getUniqueId()), Logger.LOG_LEVEL_DEBUG);
-                        }
-
-                    }catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-        } catch (SystemException e) {
-            e.printStackTrace();
+    private void populateFromCache() throws SystemException {
+        for (PHLight light : cache.getAllLights()) {
+            state.getParcel(LIGHT_2_ID_KEY).put(light.getName(), light.getUniqueId());
+            state.getParcel(ID_2_LIGHT_KEY).put(light.getUniqueId(), light.getName());
         }
-    }
+        for(PHGroup group : cache.getAllGroups()){
+            state.getParcel(GROUP_2_ID_KEY).put(group.getName(), group.getIdentifier());
+            state.getParcel(ID_2_GROUP_KEY).put(group.getIdentifier(), group.getName());
+        }
 
-
-    /*
-    Makes dealing with hue scens alot easier because I can just call them by their
-    systemIdentifier and get their sceneID
-     */
-    private void populateName2Scene(){
         for(PHScene scene : bridge.getResourceCache().getAllScenes()){
-            try {
-                state.getParcel("name2Scene").put(scene.getName(),scene.getSceneIdentifier());
-            } catch (SystemException e) {
-                e.printStackTrace();
-            }
+            state.getParcel(SCENE_2_ID_KEY).put(scene.getName(),scene.getSceneIdentifier());
+            state.getParcel(ID_2_SCENE_KEY).put(scene.getName(),scene.getSceneIdentifier());
         }
     }
 
-
-
-    public Parcel process(Parcel p) {
-        try {
-            switch (p.getString("op")){
-                case "get":
-                    switch (p.getString("what")) {
-                        case "state":
-                            return Parcel.RESPONSE_PARCEL(state);
-                        default:
-                            if(state.contains(p.getString("what"))) {
-                                StateValue sp = state.getStateParcel(p.getString("what"));
-                                if (sp.canRead()) {
-                                    return Parcel.RESPONSE_PARCEL(sp.getValue());
-                                }
-                                throw SystemException.ACCESS_DENIED(p);
-                            }
-                            throw SystemException.WHAT_NOT_SUPPORTED(p);
-                    }
-                case "set":
-                    switch (p.getString("what")) {
-                        case "mode":
-                            setMode(p);
-                            break;
-                        case "allLights":
-                            setAllLights(p);
-                            break;
-                        case "colorLights":
-                            setAllColorLights(p);
-                            break;
-                        case "light":
-                            setLight(p);
-                            break;
-                        default:
-                            StateValue sp = state.getStateParcel(p.getString("what"));
-                            if (sp.canWrite()) {
-                                sp.update(p.get("to"));
+    /**
+     * Process method of the System
+     * @param p: the Parcel to be operated on
+     * @return Response Parcel
+     * @throws SystemException
+     */
+    public Parcel process(Parcel p) throws SystemException {
+        switch (p.getString(OP_KEY)){
+            case GET_OP_KEY:
+                switch (p.getString(WHAT_KEY)) {
+                    case STATE_KEY:
+                        return Parcel.RESPONSE_PARCEL(state);
+                    default:
+                        if(state.contains(p.getString(WHAT_KEY))) {
+                            StateValue sp = state.getStateParcel(p.getString(WHAT_KEY));
+                            if (sp.canRead()) {
                                 return Parcel.RESPONSE_PARCEL(sp.getValue());
                             }
                             throw SystemException.ACCESS_DENIED(p);
-                    }
-                    return Parcel.RESPONSE_PARCEL("setSucess");
-                default:
-                    throw SystemException.OP_NOT_SUPPORTED(p);
-            }
-        } catch (SystemException e) {
-            return Parcel.RESPONSE_PARCEL_ERROR(e);
+                        }
+                        throw SystemException.WHAT_NOT_SUPPORTED(p);
+                }
+            case SET_OP_KEY:
+                switch (p.getString(WHAT_KEY)) {
+                    case ALL_LIGHTS_KEY:
+                        return setAllLights(p);
+                    case GROUP_KEY:
+                        return setGroup(p);
+                    case LIGHT_KEY:
+                        return setLight(p);
+                }
+                throw SystemException.WHAT_NOT_SUPPORTED(p);
+            default:
+                throw SystemException.OP_NOT_SUPPORTED(p);
         }
 
     }
+
+    /**
+     * Set the room, extension of the process method
+     * Adds the correct parcel onto the light commands
+     * Must have
+     *  room: what room
+     *  to: what mode
+     *
+     * @param p Parcel sent to the process method
+     * @return Response Parcel
+     * @throws SystemException
+     */
+    private Parcel setGroup(Parcel p) throws SystemException {
+        String group = p.getString(GROUP_KEY);
+
+        String mode = p.getString(TO_KEY);
+        switch (mode){
+            case MODE_OFF:
+                lightCommands.add(HueParcel.GROUP_UPDATE(state.getParcel(GROUP_2_ID_KEY).getString(group),
+                        phLightStateFromParcel(HueParcel.GENERATE_STATE(false))));
+                break;
+            case MODE_ON:
+                lightCommands.add(HueParcel.GROUP_UPDATE(state.getParcel(GROUP_2_ID_KEY).getString(group),
+                        phLightStateFromParcel(HueParcel.GENERATE_STATE(false))));
+                break;
+            case MODE_CUSTOM:
+                lightCommands.add(HueParcel.GROUP_UPDATE(state.getParcel(GROUP_2_ID_KEY).getString(group),
+                        phLightStateFromParcel(p)));
+                break;
+            default:
+                String sceneId = group.toLowerCase() + "-" + mode.toLowerCase();
+                if(state.getParcel(SCENE_2_ID_KEY).contains(sceneId)){
+                    lightCommands.add(HueParcel.SCENE_UPDATE(state.getParcel(SCENE_2_ID_KEY).getString(sceneId)));
+                }else{
+                    throw SystemException.TO_NOT_SUPPORTED(p);
+                }
+        }
+        return Parcel.RESPONSE_PARCEL("group set");
+    }
+
+    private Parcel setAllLights(Parcel p) throws SystemException{
+        lightCommands.add(HueParcel.ALL_LIGHT_UPDATE(phLightStateFromParcel(p)));
+        return null;
+    }
+
 
 
     /*
@@ -361,7 +349,7 @@ public class HueSystem extends SystemParent{
             case "HueShift":
                 state.getStateParcel("liveMode").update(true);
                 state.getStateParcel("mode").update("hueShift");
-                currentMotionScene = new HueShiftScene(this);
+                //currentMotionScene = new HueShiftScene(this);
                 break;
             case "RandomColors":
                 state.getStateParcel("liveMode").update(true);
@@ -375,68 +363,41 @@ public class HueSystem extends SystemParent{
     }
 
 
+    /**
+     * Light Commands
+     * Set light given a light Id
+     * @param light
+     * @param p
+     * @throws SystemException
+     */
+    private void setLight(PHLight light, Parcel p) throws SystemException {
+        lightCommands.add(HueParcel.LIGHT_UPDATE(light,phLightStateFromParcel(p.getParcel("to"))));
+    }
     /*
     Set a PHlight using strings
     @TODO dont crash on invalid input
      */
-    private void setLight(PHLight light, Parcel p) throws SystemException {
+    private PHLightState phLightStateFromParcel(Parcel p) throws SystemException {
         PHLightState newState = new PHLightState();
-        switch (p.getString("to")) {
-            case "state":
-                if(p.containsKey("H"))
-                    newState.setHue(p.getInteger("H"));
-                if(p.containsKey("S"))
-                    newState.setSaturation(p.getInteger("S"));
-                if(p.containsKey("V"))
-                    newState.setBrightness(p.getInteger("V"));
-                if(p.containsKey("power"))
-                    newState.setOn(p.getBoolean("power"));
-                if(p.containsKey("transTime"))
-                    newState.setHue(p.getInteger("transTime"));
-                break;
-            case "HSV":
-                if(p.containsKey("H"))
-                    newState.setHue(p.getInteger("H"));
-                if(p.containsKey("S"))
-                    newState.setSaturation(p.getInteger("S"));
-                if(p.containsKey("V"))
-                    newState.setBrightness(p.getInteger("V"));
-                break;
-
-            case "off":
-                newState.setOn(false);
-                break;
-
-            case "on":
-                newState.setOn(true);
-                break;
-
-            case "RGB":
-                float xy[] = PHUtilities.calculateXYFromRGB(p.getInteger("R"),p.getInteger("G"),p.getInteger("B"), light.getModelNumber());
-                newState.setX(xy[0]);
-                newState.setY(xy[1]);
-            break;
-            default:
-                throw SystemException.TO_NOT_SUPPORTED(p);
-        }
-        lightCommands.add(HueParcel.LIGHT_UPDATE(light,newState));
+        if(p.containsKey(LIGHT_STATE_HUE_KEY))
+            newState.setHue(p.getInteger("H"));
+        if(p.containsKey(LIGHT_STATE_SATURATION_KEY))
+            newState.setSaturation(p.getInteger(LIGHT_STATE_SATURATION_KEY));
+        if(p.containsKey(LIGHT_STATE_VALUE_KEY))
+            newState.setBrightness(p.getInteger(LIGHT_STATE_VALUE_KEY));
+        if(p.containsKey(LIGHT_STATE_POWER_KEY))
+            newState.setOn(p.getBoolean(LIGHT_STATE_POWER_KEY));
+        if(p.containsKey(LIGHT_STATE_TRANS_TIME))
+            newState.setHue(p.getInteger(LIGHT_STATE_TRANS_TIME));
+        return newState;
     }
 
-    private void setLight(Parcel p) throws SystemException {
+    private Parcel setLight(Parcel p) throws SystemException {
         setLight((PHLight) state.getParcel("name2Light").get(p.getString("light")), p);
+        return Parcel.RESPONSE_PARCEL("success");
     }
 
-    /*
-    Sets all the colored light to something
-     */
-    private void setAllColorLights(Parcel p) throws SystemException {
-        for(PHLight light : allLights){
-            if(light.getLightType().equals(PHLight.PHLightType.COLOR_LIGHT))
-            {
-                setLight(light, p);
-            }
-        }
-    }
+
 
     /*
     Set all the lights to something
@@ -444,7 +405,7 @@ public class HueSystem extends SystemParent{
     @todo dont break on improper input
     @todo return int error
      */
-    private void setAllLights(Parcel p) throws SystemException {
+    private void setAllLightss(Parcel p) throws SystemException {
         PHLightState state = new PHLightState();
         switch (p.getString("to")){
             case "on":
@@ -495,13 +456,18 @@ public class HueSystem extends SystemParent{
         lightState.setOn(true);
         lightCommands.add(HueParcel.ALL_LIGHT_UPDATE(lightState));
     }
+
     /*
     On update, check if there needs to be anything changed for the current mode
     let the mode handel the acutal change
      */
+
+    private void setAllRoom(){
+
+    }
+
     @Override
-    public void update()
-    {
+    public void update() throws SystemException {
        // System.out.println("Lights:");
         if (currentMotionScene != null) {
             currentMotionScene.update();
@@ -512,21 +478,23 @@ public class HueSystem extends SystemParent{
                     phHueSDK.connect(accessPoint);
                 }
                 if(phHueSDK.isAccessPointConnected(accessPoint)) {
-                    if (state.getInteger("sendLatency") + lastSendTime < System.currentTimeMillis()) {
+                    if (state.getInteger(SEND_PERIOD_KEY) + lastSendTime < System.currentTimeMillis()) {
                         if (lightCommands.size() > 0) {
                             Parcel p = lightCommands.remove(0);
                             if (connected) {
-                                switch (p.getString("type")) {
-                                    case "allLightUpdate":
-                                        bridge.setLightStateForDefaultGroup((PHLightState) p.get("lightState"));
+                                switch (p.getString(TYPE_KEY)) {
+                                    case ALL_LIGHT_UPDATE_COMMAND:
+                                        bridge.setLightStateForDefaultGroup((PHLightState) p.get(PH_LIGHT_STATE_KEY));
                                         break;
-                                    case "sceneUpdate":
-                                        bridge.activateScene(p.getString("sceneID"), "0", sceneListener);
+                                    case SCENE_UPDATE_LIGHT_COMMAND:
+                                        bridge.activateScene(p.getString(SCENE_ID_KEY), "0", sceneListener);
                                         break;
-                                    case "lightUpdate":
-                                        bridge.updateLightState((PHLight) p.get("light"), (PHLightState) p.get("lightState"), lightLister);
+                                    case LIGHT_UPDATE_LIGHT_COMMAND   :
+                                        bridge.updateLightState((PHLight) p.get("light"), (PHLightState) p.get(PH_LIGHT_STATE_KEY), lightLister);
                                         break;
-
+                                    case GROUP_UPDATE_LIGHT_COMMAND:
+                                        bridge.setLightStateForGroup(p.getString(GROUP_KEY), (PHLightState) p.get(PH_LIGHT_STATE_KEY));
+                                        break;
                                 }
                             }
 
@@ -563,6 +531,10 @@ public class HueSystem extends SystemParent{
         }
     }
     */
+
+
+
+
     public static void main(String[] args)
     {
         HueSystem system = new HueSystem(null);
@@ -589,7 +561,7 @@ public class HueSystem extends SystemParent{
                 }
               // System.out.println();
 
-            } catch (InterruptedException e) {
+            } catch (InterruptedException | SystemException e) {
                 e.printStackTrace();
             }
         }

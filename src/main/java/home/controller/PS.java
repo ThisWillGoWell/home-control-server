@@ -3,152 +3,146 @@ package home.controller;
 public class PS {
 
     //systemNames
-    public static final String NETWORK_SYSTEM_NAME = "network";
-    public static final String CHROMECAST_SYSTEM_NAME = "chromecast";
-
-
-
+    public static final String
+        NETWORK_SYSTEM_NAME     = "network",
+        CHROMECAST_SYSTEM_NAME  = "chromecast";
 
 
     public static final class GenericPS {
-        public static final String GET_OP_KEY = "get";
-        public static final String SET_OP_KEY = "set";
-        public static final String WHAT_KEY = "what";
-        public static final String OP_KEY = "op";
-        public static final String SYSTEM_KEY = "system";
-
-
-        //Parents
-        public static final String SUB_ALERT_TYPE = "alert";
-        public static final String SUB_CHANGE_TYPE = "change";
-
-        public static final String SUBSCRIBER_KEY = "subscriber";
-
-        public static final String HELLO_COMMAND = "hello";
-        public static final String DEREGISTER_COMMAND = "deregister";
-        public static final String SUB_COMMAND = "subscribe";
-        public static final String UPDATE_COMMAND = "update";
-
-        public static final String SUB_TYPE_KEY = "type";
-        public static final String SUB_REQUEST_KEY = "request";
-        public static final String PAYLOAD_KEY = "payload";
-
-
+        public static final String
+            GET_OP_KEY          = "get",
+            SET_OP_KEY          = "set",
+            WHAT_KEY            = "what",
+            OP_KEY              = "op",
+            SYSTEM_KEY          = "system",
+            STATE_KEY           = "state",
+            TO_KEY              = "to",
+        //Parent,
+            SUB_ALERT_TYPE      = "alert",
+            SUB_CHANGE_TYPE     = "change",
+            SUBSCRIBER_KEY      = "subscriber",
+            HELLO_COMMAND       = "hello",
+            DEREGISTER_COMMAND  = "deregister",
+            SUB_COMMAND         = "subscribe",
+            UPDATE_COMMAND      = "update",
+            SUB_TYPE_KEY        = "type",
+            SUB_REQUEST_KEY     = "request",
+            PAYLOAD_KEY         = "payload";
     }
 
     public static final class NetworkDevices{
-
         //Network Mac
-        public static final String DINOLIGHT_MAC = "b8:27:eb:c2:f5:53";
-        public static final String CHROMECAST_AUDIO_BEDROOM_MAC = "a4:77:33:f1:93:76";
-        public static final String WILL_PHONE_ANDROID_MAC = "ac:37:43:4b:aa:e5";
-        public static final String WILL_PHONE_IPHONE_MAC = "b8:27:eb:c2:f5:53";
-        public static final String PHILIPS_HUE_MAC = "00:17:88:23:a2:86";
+        public static final String
+            DINOLIGHT_MAC                   = "b8:27:eb:c2:f5:53",
+            CHROMECAST_AUDIO_BEDROOM_MAC    = "a4:77:33:f1:93:76",
+            WILL_PHONE_ANDROID_MAC          = "ac:37:43:4b:aa:e5",
+            WILL_PHONE_IPHONE_MAC           = "b8:27:eb:c2:f5:53",
+            PHILIPS_HUE_MAC                 = "00:17:88:23:a2:86",
+            CHROMECAST_BEDROOM_MAC          = "f4:f5:d8:3a:31:a2",
+            CHROMECAST_LIVINGROOM_MAC       = "a4:77:33:03:19:D0",
 
-        //Device Names
-        public static final String DINOLIGHT = "DINOLIGHT";
-        public static final String CHROMECAST_AUDIO_BEDROOM = "Chromecast-Audio-Bedroom";
-        public static final String WILL_PHONE_ANDROID = "will-phone-android";
-        public static final String WILL_PHONE_IPHONE = "will-phone-iphone";
-        public static final String PHILIPS_HUE = "philips-hue";
-
+            //Device Names
+            DINOLIGHT                       = "DINOLIGHT",
+            CHROMECAST_AUDIO_BEDROOM        = "Chromecast-Audio-Bedroom",
+            WILL_PHONE_ANDROID              = "will-phone-android",
+            WILL_PHONE_IPHONE               = "will-phone-iphone",
+            PHILIPS_HUE                     = "philips-hue",
+            CHROMECAST_BEDROOM              = "Chromecast-Bedroom",
+            CHROMECAST_LIVINGROOM           = "Chromecast-Livingroom";
     }
 
-
     public static final class NetworkSystemStrings{
-        public static final String NETWORK_SYSTEM_NAME1 = PS.NETWORK_SYSTEM_NAME;
-        //Import Device Names and Mac from NetworkDevices
-        public static final String DINOLIGHT = NetworkDevices.DINOLIGHT;
-        public static final String CHROMECAST_AUDIO_BEDROOM = NetworkDevices.CHROMECAST_AUDIO_BEDROOM;
-        public static final String WILL_PHONE_ANDROID = NetworkDevices.WILL_PHONE_ANDROID;
-        public static final String WILL_PHONE_IPHONE = NetworkDevices.WILL_PHONE_IPHONE;
-        public static final String PHILIPS_HUE = NetworkDevices.PHILIPS_HUE;
-
-        public static final String DINOLIGHT_MAC = NetworkDevices.DINOLIGHT_MAC;
-        public static final String CHROMECAST_AUDIO_BEDROOM_MAC = NetworkDevices.CHROMECAST_AUDIO_BEDROOM_MAC;
-        public static final String WILL_PHONE_ANDROID_MAC = NetworkDevices.WILL_PHONE_ANDROID_MAC;
-        public static final String WILL_PHONE_IPHONE_MAC = NetworkDevices.WILL_PHONE_IPHONE_MAC;
-        public static final String PHILIPS_HUE_MAC = NetworkDevices.PHILIPS_HUE_MAC;
-
+        public static final String
         //Parcel Keys
-        public static final String DEVICE_KEY = "device";
-        public static final String DEVICES_KEY = "devices";
-        public static final String TIMEOUT_KEY = "timeout";
-        public static final String CONNECTED_KEY = "connected";
-        public static final String IP_KEY = "ip";
-        public static final String LAST_PING_TIME_KEY = "LAST_PING_TIME_KEY";
-        public static final String MAC_KEY = "mac";
-
+        DEVICE_KEY          = "device",
+        DEVICES_KEY         = "devices",
+        TIMEOUT_KEY         = "timeout",
+        CONNECTED_KEY       = "connected",
+        IP_KEY              = "ip",
+        LAST_PING_TIME_KEY  = "LAST_PING_TIME_KEY",
+        MAC_KEY             = "mac";
     }
 
     public static final class ChromeCastPS {
-        public static final String CHROMECAST_AUDIO_BEDROOM = NetworkDevices.CHROMECAST_AUDIO_BEDROOM;
-
-        public static final String APP_2_APP_ID = "app2appID";
-        public static final String CHROME_CAST_NAME_MAP = "chromeCastNameMap";
-        public static final String CHROME_CASTS_KEY = "chromeCasts";
-
-        //ChromeCast App Names
-        public static final String MEDIA_APP_NAME = "CC1AD845";
-        public static final String YOUTUBE_APP_NAME = "233637DE";
-        public static final String BACKDROP_APP_NAME = "E8C28D3C";
-
-        //Process commands
-        public static final String CAST_NAME_KEY = "castName";
-
-        //ChromeCastSystem Ops/directives
-        public static final String PLAY_OP = "play";
-        public static final String PLAY_RADIO_COMMAND = "radio";
-
-
-        public static final String CLOSE_OP = "close";
-        public static final String CONTROL_OP = "control";
-
-        public static final String ACTION_KEY  = "action";
-
-        public static final String PLAY_COMMAND = "play";
-        public static final String PAUSE_COMMAND = "pause";
-        public static final String VOLUME_COMMAND = "volume";
-        public static final String MUTE_COMMAND = "mute";
-        public static final String SEEK_COMMAND = "seek";
-        public static final String MUTE_VALUE_KEY = "muted";
-        public static final String SEEK_TIME_KEY = "time";
-        public static final String VOLUME_LEVEL_KEY = "level";
-
-
-        //Chomecast Sates
-        public static final String CHROME_CAST_NAME_KEY = "name";
-        public static final String IP_KEY = "ip";
-        public static final String CONNECTED_KEY = "connected";
-        public static final String STATUS_KEY = "status";
-        public static final String PORT_KEY = "port";
-        public static final String CHROMECAST_PENDING_PARCELS = "pendingParcels";
-        public static final String IS_VIRTUAL_KEY = "isVirtual";
-
-
-        //Radio Station Info
-        public static final String STATION_KEY = "station";
-        public static final String RADIO_70S = "70s";
-        public static final String RADIO_80S = "80s";
-        public static final String RADIO_90S = "90s";
-        public static final String RADIO_CLASSIC_ROCK = "classicRock";
-        public static final String RADIO_CLASSIC_ROCK_1 = "classicRock1";
-        public static final String RADIO_CLASSICAL = "classical";
-        public static final String RADIO_WITR = "witr";
-        public static final String RADIO_ROCK = "rock";
-        public static final String RADIO_NEWS = "news";
-        public static final String RADIO_BUSINESS = "business";
-
-
-        //Other Ops
-        public static final String GET_OP_KEY = GenericPS.GET_OP_KEY;
-        public static final String SET_OP_KEY = GenericPS.SET_OP_KEY;
-        public static final String OP_KEY = GenericPS.OP_KEY;
-        public static final String WHAT_KEY = GenericPS.WHAT_KEY;
-        //
-
-
+        public static final String
+            APP_2_APP_ID            = "app2appID",
+            CHROME_CAST_NAME_MAP    = "chromeCastNameMap",
+            CHROME_CASTS_KEY        = "chromeCasts",
+            //ChromeCast App Names
+            MEDIA_APP_NAME          = "CC1AD845",
+            YOUTUBE_APP_NAME        = "233637DE",
+            BACKDROP_APP_NAME       = "E8C28D3C",
+            //Process commands
+            CAST_NAME_KEY           = "castName",
+            //ChromeCastSystem Ops/directives
+            PLAY_RADIO_COMMAND  = "radio",
+            CLOSE_OP            = "close",
+            CONTROL_OP          = "control",
+            ACTION_KEY          = "action",
+            //actions
+            PLAY_COMMAND        = "play",
+            PAUSE_COMMAND       = "pause",
+            VOLUME_COMMAND      = "volume",
+            MUTE_COMMAND        = "mute",
+            SEEK_COMMAND        = "seek",
+            MUTE_VALUE_KEY      = "muted",
+            SEEK_TIME_KEY       = "time",
+            VOLUME_LEVEL_KEY    = "level",
+            //Chomecast Sates
+            CHROME_CAST_NAME_KEY        = "name",
+            IP_KEY                      = "ip",
+            CONNECTED_KEY               = "connected",
+            STATUS_KEY                  = "status",
+            PORT_KEY                    = "port",
+            CHROMECAST_PENDING_PARCELS  = "pendingParcels",
+            IS_VIRTUAL_KEY              = "isVirtual",
+            //Radio Station Info
+            STATION_KEY             = "station",
+            RADIO_70S               = "70s",
+            RADIO_80S               = "80s",
+            RADIO_90S               = "90s",
+            RADIO_CLASSIC_ROCK      = "classicRock",
+            RADIO_CLASSIC_ROCK_1    = "classicRock1",
+            RADIO_CLASSICAL         = "classical",
+            RADIO_WITR              = "witr",
+            RADIO_ROCK              = "rock",
+            RADIO_MORNING_NEWS      = "morningNews",
+            RADIO_NEWS              = "news",
+            RADIO_BUSINESS          = "business";
     }
 
+    public static final class HuePS{
+        public static final String
+            HUE_USERNAME    = "iixA66asLRYI-jOBsmrwjIhpu7VYkTl1R1CitgZa",
+            LIGHT_2_ID_KEY  = "light2Id",
+            SCENE_2_ID_KEY  = "scene2Id",
+            GROUP_2_ID_KEY  = "group2Id",
+            ID_2_LIGHT_KEY  = "id2Light",
+            ID_2_GROUP_KEY  = "id2Scene",
+            ID_2_SCENE_KEY  = "id2Group",
+            SEND_PERIOD_KEY = "sendFrequency",
+            // Some inner stuffs now
+            GROUP_KEY       = "group",
+            MODE_KEY        = "mode",
+            LIGHT_KEY       = "light",
+            ALL_LIGHTS_KEY = "allLights",
+            MODE_OFF        = "off",
+            MODE_ON         = "on",
+            MODE_CUSTOM     = "custom",
 
+            LIGHT_STATE_HUE_KEY         = "H",
+            LIGHT_STATE_SATURATION_KEY  = "S",
+            LIGHT_STATE_VALUE_KEY       = "V",
+            LIGHT_STATE_POWER_KEY       = "power",
+            LIGHT_STATE_TRANS_TIME      = "transTime",
+
+            //internal lightCommands command
+            TYPE_KEY                    = "type",
+            SCENE_ID_KEY                = "sceneId",
+            GROUP_UPDATE_LIGHT_COMMAND  = "groupUpdate",
+            LIGHT_UPDATE_LIGHT_COMMAND  = "individualLightUpdate",
+            SCENE_UPDATE_LIGHT_COMMAND  = "sceneLightUpdate",
+            ALL_LIGHT_UPDATE_COMMAND    = "allLightUpdate",
+            PH_LIGHT_STATE_KEY          = "phLightState";
+    }
 }

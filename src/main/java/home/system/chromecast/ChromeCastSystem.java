@@ -26,9 +26,8 @@ import static home.controller.PP.NetworkPP.GetConnected;
 import static home.controller.PP.NetworkPP.GetIp;
 import static home.controller.PP.NetworkPP.SubscribeToConnected;
 import static home.controller.PS.ChromeCastPS.*;
-import static home.controller.PS.GenericPS.PAYLOAD_KEY;
-import static home.controller.PS.GenericPS.SUB_REQUEST_KEY;
-import static home.controller.PS.NetworkSystemStrings.CHROMECAST_AUDIO_BEDROOM;
+import static home.controller.PS.GenericPS.*;
+import static home.controller.PS.NetworkDevices.*;
 import static home.controller.PS.NetworkSystemStrings.DEVICE_KEY;
 
 
@@ -156,7 +155,9 @@ public class ChromeCastSystem extends SystemParent {
      */
     private static Parcel Chromecasts() {
         Parcel p = new Parcel();
-        p.put(CHROMECAST_AUDIO_BEDROOM,castContainerParcel(CHROMECAST_AUDIO_BEDROOM));
+        p.put(CHROMECAST_AUDIO_BEDROOM, castContainerParcel(CHROMECAST_AUDIO_BEDROOM));
+        p.put(CHROMECAST_BEDROOM, castContainerParcel(CHROMECAST_BEDROOM));
+        p.put(CHROMECAST_LIVINGROOM, castContainerParcel(CHROMECAST_LIVINGROOM));
         return p;
     }
 

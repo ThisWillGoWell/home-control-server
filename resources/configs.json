@@ -1,31 +1,39 @@
 {
-  "Chromecast" : {"type": "chromecast"},
-  "HVAC": {"type": "hvac"},
-  "irRemote" : {"type": "irRemote"},
+  "irRemote":{},
+  "chromecast":{"init":[]},
+  "media":{"init":[]},
+  "hue":{},
+  "network":{},
+  "clock":{},
+  "weather":{},
   "scheduler": {
-    "type": "scheduler",
     "init": [{
       "op": "schedule",
-      "name":"Turn Up heat 1 minuet",
-      "cron": "0 0/1 * 1/1 * ? *",
-      "parcelArray":[{
-        "system": "HVAC",
-        "op" : "systemTempUp"
-      }]
+      "name":"Brew Coffee, Turn on Classical at 8:30",
+      "cron": "0 30 08 1/1 * ? *",
+      "parcelArray":[
+        {"system" : "chromecast", "op":"play", "what": "radio",  "stationID":"classical","castName" : "Chromecast-Audio-Bedroom"},
+        {"op":"set","system":"hue","what":"mode","to":"Dim"}
+      ]
     },{
       "op": "schedule",
-      "name":"Turn on the TV at 1:30",
-      "cron": "0 57 13 1/1 * ? *",
-      "parcelArray":[{
-        "system": "irRemote",
-        "op" : "set",
-        "what": "preset",
-        "to" : "bedroomStandard"
-      }]
+      "name":"Play News, Turn up Lights at 8:35",
+      "cron": "0 35 08 1/1 * ? *",
+      "parcelArray":[
+        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"news","castName" : "Chromecast-Audio-Bedroom"},
+        {"op":"set","system":"hue","what":"mode","to":"Standard"}
+      ]
+    },{
+      "op": "schedule",
+      "name":"Switch to Rock at 8:41",
+      "cron": "0 41 08 1/1 * ? *",
+      "parcelArray":[
+        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"rock","castName" : "Chromecast-Audio-Bedroom"}
+      ]
     }
-
     ]}
 }
+
 
 
 

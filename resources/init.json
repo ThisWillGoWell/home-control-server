@@ -1,32 +1,68 @@
 {
-  "chromecast":{"init":[]},
+  "chromecast":{},
+  "irRemote":{},
   "media":{"init":[]},
   "hue":{},
   "network":{},
   "scheduler": {
     "init": [{
       "op": "schedule",
-      "name":"Brew Coffee, Turn on Classical at 8:30",
-      "cron": "0 30 08 1/1 * ? *",
+      "name":"Turn on Classical at 8:00 and dim lights",
+      "cron": "0 00 08 1/1 * ? *",
       "parcelArray":[
-        {"system" : "chromecast", "op":"play", "what": "radio",  "stationID":"classical","castName" : "Chromecast-Audio-Bedroom"},
-        {"op":"set","system":"hue","what":"mode","to":"Dim"}
+        { "op":"set", "system" : "irRemote", "what":"preset","to" : "bedroomChromecast"},
+        {"system" : "chromecast", "op":"play", "what": "radio",  "stationID":"classical","castName" : "Chromecast-Bedroom"},
+        { "op":"set", "system" : "hue", "what" : "group", "group":"Bedroom", "to" : "dim"}
       ]
     },{
       "op": "schedule",
-      "name":"Play News, Turn up Lights at 8:35",
-      "cron": "0 35 08 1/1 * ? *",
+      "name":"Play News, Turn up Lights at 8:05",
+      "cron": "0 05 08 1/1 * ? *",
       "parcelArray":[
-        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"news","castName" : "Chromecast-Audio-Bedroom"},
-        {"op":"set","system":"hue","what":"mode","to":"Standard"}
+        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"news","castName" : "Chromecast-Bedroom"},
+        { "op":"set", "system" : "hue", "what" : "group", "group":"Bedroom", "to" : "bright"}
       ]
     },{
       "op": "schedule",
-      "name":"Switch to Rock at 8:41",
-      "cron": "0 41 08 1/1 * ? *",
+      "name":"Switch to Rock at 8:11",
+      "cron": "0 11 08 1/1 * ? *",
       "parcelArray":[
-        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"rock","castName" : "Chromecast-Audio-Bedroom"}
+        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"rock","castName" : "Chromecast-Bedroom"}
+      ]
+    },{
+      "op": "schedule",
+      "name":"Turn off all lights and musci weekdays 9:15",
+      "cron": "0 15 09 ? * MON-FRI",
+      "cronStr":"At 09:15 on every day-of-week from Monday through Friday",
+      "parcelArray":[
+        { "op":"set", "what":"preset", "system" : "irRemote", "to" : "bedroomOff"},
+        { "system" : "irRemote", "op":"pause", "what": "radio",  "stationID":"rock","castName" : "Chromecast-Bedroom"},
+        { "op":"set", "system" : "hue", "what" : "group", "group":"LivingRoom", "to" : "off"},
+        { "op":"set", "system" : "hue", "what" : "group", "group":"Kitchen", "to" : "off"},
+        { "op":"set", "system" : "hue", "what" : "group", "group":"Bedroom", "to" : "off"}
+      ]
+    },{
+      "op": "schedule",
+      "name":"Turn all lights to standard  19:15",
+      "cron": "0 15 19 1/1 * ? *",
+      "cronStr":"At 19:15",
+      "parcelArray":[
+        { "op":"set", "system" : "hue", "what" : "group", "group":"LivingRoom", "to" : "standard"},
+        { "op":"set", "system" : "hue", "what" : "group", "group":"Kitchen", "to" : "standard"},
+        { "op":"set", "system" : "hue", "what" : "group", "group":"Bedroom", "to" : "standard"}
+
+      ]
+    },{
+      "op": "schedule",
+      "name":"Turn all lights to dim at 23:15",
+      "cron": "0 15 23 1/1 * ? *",
+      "cronStr":"At 23:15",
+      "parcelArray":[
+        { "op":"set", "system" : "hue", "what" : "group", "group":"LivingRoom", "to" : "dim"},
+        { "op":"set", "system" : "hue", "what" : "group", "group":"Kitchen", "to" : "dim"},
+        { "op":"set", "system" : "hue", "what" : "group", "group":"Bedroom", "to" : "dim"}
       ]
     }
     ]}
+
 }

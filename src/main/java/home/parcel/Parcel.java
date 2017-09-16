@@ -1,6 +1,6 @@
 package home.parcel;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import home.controller.webmanager.SocketSession;
 import home.controller.subscriber.Subscriber;
 import org.json.hue.JSONException;
@@ -18,6 +18,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,6 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * The core of the messageing system
  */
 public class Parcel extends ConcurrentHashMap<String, Object> {
+
+
 
     private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
 
@@ -373,8 +376,40 @@ public class Parcel extends ConcurrentHashMap<String, Object> {
 
     public String toString(){
         Parcel p = ONLY_WRAPPER_VALUES(REMOVE_STATE_OBJECTS(this));
-        Gson gson = new Gson();
-        return gson.toJson(p);
+        StringBuilder json = new StringBuilder("{");
+        for(String key : this.keySet()){
+            Object o = null;
+
+            try {
+                o = this.get(key);
+            } catch (SystemException e) {
+                e.printStackTrace();
+            }
+            if(!(o instanceof StateValue)){
+                json.append('"');
+                json.append(key);
+                json.append('"');
+                json.append(':');
+                if(!isWrapperType(o.getClass())){
+                    json.append('"');
+                    String objStr = o.toString();
+                    objStr = objStr.replaceAll("(?<!\\\\)\'", "\\\\'");
+                    objStr = objStr.replaceAll("(?<!\\\\)\"", "\\\\\"");
+                    json.append(objStr);
+                    json.append('"');
+                }else{
+                    json.append(o);
+                }
+
+
+            }
+            json.append(',');
+        }
+        if(json.length() == 0)
+            return "{}";
+        json.deleteCharAt(json.length()-1);
+        json.append('}');
+        return json.toString();
     }
 
     public boolean contains(String value) {

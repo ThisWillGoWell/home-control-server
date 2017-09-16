@@ -88,10 +88,7 @@ public class SubscriberManager{
      *
      */
     public static void checkUpdate(Publisher publisher){
-
         if(subscriptions.containsKey(publisher)){
-
-
                 for(Subscription s: subscriptions.get(publisher)) {
                     if (s.requestParcel != null) {
                         Object newVal = null;

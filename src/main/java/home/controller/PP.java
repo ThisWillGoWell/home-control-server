@@ -44,7 +44,7 @@ public class PP {
      * @param args other args int the form of {key0, value0, key1, value1...}
      * @return the sub parcel
      */
-    public static Parcel SubsribeChange(Subscriber subscriber, String system,String what, String... args){
+    public static Parcel SubscribeChange(Subscriber subscriber, String system, String what, String... args){
         Parcel p = new Parcel();
 
         p.put(PS.GenericPS.OP_KEY, PS.GenericPS.SUB_COMMAND);
@@ -96,13 +96,13 @@ public class PP {
 
     public static class NetworkPP{
         public static Parcel SubscribeToIp(Subscriber subscriber, String device){
-            return SubsribeChange(subscriber, PS.NETWORK_SYSTEM_NAME, PS.NetworkSystemStrings.IP_KEY, PS.NetworkSystemStrings.DEVICE_KEY, device);
+            return SubscribeChange(subscriber, PS.NETWORK_SYSTEM_NAME, PS.NetworkSystemStrings.IP_KEY, PS.NetworkSystemStrings.DEVICE_KEY, device);
         }
         public static Parcel GetIp(String device){
             return GetSystemValue(PS.NETWORK_SYSTEM_NAME, PS.NetworkSystemStrings.IP_KEY, PS.NetworkSystemStrings.DEVICE_KEY, device);
         }
         public static Parcel SubscribeToConnected(Subscriber subscriber, String device){
-            return SubsribeChange(subscriber, PS.NETWORK_SYSTEM_NAME, PS.NetworkSystemStrings.CONNECTED_KEY, PS.NetworkSystemStrings.DEVICE_KEY, device);
+            return SubscribeChange(subscriber, PS.NETWORK_SYSTEM_NAME, PS.NetworkSystemStrings.CONNECTED_KEY, PS.NetworkSystemStrings.DEVICE_KEY, device);
         }
         public static Parcel GetConnected(String device){
             return GetSystemValue(PS.NETWORK_SYSTEM_NAME, PS.NetworkSystemStrings.CONNECTED_KEY, PS.NetworkSystemStrings.DEVICE_KEY, device);
