@@ -71,6 +71,9 @@ public class ChromeCastSystem extends SystemParent {
      * @todo there is a bug here, does not handel disconnect
      */
     public void init() throws SystemException {
+        discover();
+
+        /*
         for (String key : state.getParcel(CHROME_CASTS_KEY).keySet()) {
             Parcel p = state.getParcel(CHROME_CASTS_KEY).getParcel(key);
             engine.digestParcel(SubscribeToConnected(this, p.getString(CHROME_CAST_NAME_KEY)));
@@ -85,8 +88,8 @@ public class ChromeCastSystem extends SystemParent {
                 }
 
             }
-
         }
+            */
 
     }
 
@@ -107,6 +110,7 @@ public class ChromeCastSystem extends SystemParent {
         }
 
     }
+
 
     private synchronized void getChromecastPorts(Parcel castParcel) throws SystemException {
         try {
@@ -156,8 +160,8 @@ public class ChromeCastSystem extends SystemParent {
     private static Parcel Chromecasts() {
         Parcel p = new Parcel();
         p.put(CHROMECAST_AUDIO_BEDROOM, castContainerParcel(CHROMECAST_AUDIO_BEDROOM));
-        p.put(CHROMECAST_BEDROOM, castContainerParcel(CHROMECAST_BEDROOM));
-        p.put(CHROMECAST_LIVINGROOM, castContainerParcel(CHROMECAST_LIVINGROOM));
+        p.put(CHROMECAST_BEDROOM, castContainerParcel(CHROMECAST_BEDROOM, "192.168.1.4"));
+        p.put(CHROMECAST_LIVINGROOM, castContainerParcel(CHROMECAST_LIVINGROOM, "192.168.1.62   "));
         return p;
     }
 
@@ -169,10 +173,14 @@ public class ChromeCastSystem extends SystemParent {
      * @return
      */
     private static Parcel castContainerParcel(String id) {
+        return castContainerParcel(id, "");
+    }
+
+    private static Parcel castContainerParcel(String id, String ip) {
         Parcel p = new Parcel();
         p.put(IS_VIRTUAL_KEY, false);
         p.put(CHROME_CAST_NAME_KEY, id);
-        p.put(IP_KEY, "");
+        p.put(IP_KEY, ip);
         p.put(CONNECTED_KEY, false);
         p.put(STATUS_KEY, "");
         p.put(CHROMECAST_PENDING_PARCELS, new ParcelArray());
@@ -286,9 +294,11 @@ public class ChromeCastSystem extends SystemParent {
 
 
     private synchronized void updateCast(Parcel castParcel) throws SystemException {
+
         if(castParcel.getInteger(PORT_KEY) == 0){
             getChromecastPorts(castParcel);
         }
+        Logger.log(castParcel.getString(IP_KEY) + castParcel.getInteger(PORT_KEY), Logger.LOG_LEVEL_DEBUG);
         ChromeCast cast = new ChromeCast(castParcel.getString(IP_KEY), castParcel.getInteger(PORT_KEY));
         cast.setAutoReconnect(false);
         if (!cast.isConnected()) {
@@ -322,7 +332,7 @@ public class ChromeCastSystem extends SystemParent {
     private static void printAllChromecastID() {
 
         try {
-            ChromeCasts.startDiscovery(InetAddress.getByName("192.168.1.15"));
+            ChromeCasts.startDiscovery();
             Thread.sleep(3000);
             for (ChromeCast cast : ChromeCasts.get()) {
                 cast.connect();
@@ -338,8 +348,6 @@ public class ChromeCastSystem extends SystemParent {
         } catch (InterruptedException | GeneralSecurityException | IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
     private synchronized Parcel discover() {
@@ -349,13 +357,12 @@ public class ChromeCastSystem extends SystemParent {
                 if (ChromeCasts.get().size() == 0) {
                     //Logger.log(this, "No cast DEVICES_KEY found during discovery", Logger.LOG_LEVEL_DEBUG);
                     Thread.sleep(3000);
-
                 }
             }
 
             for (ChromeCast cast : ChromeCasts.get()) {
                 //Logger.log(this, "Found Cast: " + cast.getName() + "@ " + cast.getAddress() + ":" + cast.getPort(), Logger.LOG_LEVEL_DEBUG);
-                if (state.getParcel(CHROME_CAST_NAME_MAP).contains(cast.getName())) {
+                if (state.getParcel(CHROME_CAST_NAME_MAP).contains(cast.getTitle())) {
                     state.getParcel(CHROME_CASTS_KEY).getParcel(state.getParcel(CHROME_CAST_NAME_MAP).getString(cast.getName())).put("ip", cast.getAddress());
                     state.getParcel(CHROME_CASTS_KEY).getParcel(state.getParcel(CHROME_CAST_NAME_MAP).getString(cast.getName())).put("port", cast.getPort());
                 }
