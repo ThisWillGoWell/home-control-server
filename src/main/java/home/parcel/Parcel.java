@@ -54,6 +54,10 @@ public class Parcel extends ConcurrentHashMap<String, Object> {
         }
     }
 
+    public Parcel(Map<String, String> allRequestParams) {
+        super(allRequestParams);
+    }
+
     /**
      * Add a key-value that also is the key in the system envvs
      * @param key the key for the parcel and the key of the system env
