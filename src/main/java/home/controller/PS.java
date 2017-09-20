@@ -131,6 +131,16 @@ public class PS {
             ID_2_GROUP_KEY  = "id2Scene",
             ID_2_SCENE_KEY  = "id2Group",
             SEND_PERIOD_KEY = "sendFrequency",
+            LIGHT_SCENE_KEY = "lightScenes",
+
+            //light scene stuff
+            MOTION_LIGHT_SCENE_KEY          = "motionScene",
+            INIT_LIGHT_SCENE_KEY            = "initValue",
+            CAN_OVERRIDE_LIGHT_SCENE_KEY    = "canOverride",
+            LIGHT_SCENE_NAME_KEY            ="sceneName",
+            LIGHT_SCENES_KEY                = "scenes",
+            ACTIVE_LIGHT_SCENE_KEY          = "activeScene",
+            UNKNOWN_LIGHT_SCENE             = "unknown",
             // Some inner stuffs now
             GROUP_KEY       = "group",
             MODE_KEY        = "mode",
@@ -145,6 +155,11 @@ public class PS {
             LIGHT_STATE_VALUE_KEY       = "V",
             LIGHT_STATE_POWER_KEY       = "power",
             LIGHT_STATE_TRANS_TIME      = "transTime",
+            LIGHT_STATE_COLOR_TEMP      = "ct",
+            LIGHT_STATE_COLOR_MODE     = "colormode",
+            LIGHT_STATE_X_KEY           ="x",
+            LIGHT_STATE_Y_KEY           ="y",
+
 
             //internal lightCommands command
             TYPE_KEY                    = "type",

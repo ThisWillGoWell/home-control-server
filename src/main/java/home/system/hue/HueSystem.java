@@ -14,10 +14,12 @@ import home.parcel.StateValue;
 import home.parcel.SystemException;
 import home.system.SystemParent;
 
+import javax.swing.plaf.nimbus.State;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.philips.lighting.model.PHLight.PHLightColorMode.COLORMODE_CT;
 import static home.controller.PS.HuePS.*;
 import static home.controller.PS.GenericPS.*;
 
@@ -51,17 +53,96 @@ public class HueSystem extends SystemParent{
         Parcel p = new Parcel();
         p.put(ID_2_LIGHT_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
         p.put(LIGHT_2_ID_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
-
         p.put(SCENE_2_ID_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
         p.put(ID_2_SCENE_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
-
         p.put(GROUP_2_ID_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
         p.put(ID_2_GROUP_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
-
+        p.put(LIGHT_SCENE_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
         p.put(SEND_PERIOD_KEY, new StateValue(40, StateValue.READ_WRITE_PRIVLAGE));
 
         return p;
     }
+
+    /**
+     * Builder for a scene assioated with an single light id
+     * @param name
+     * @param motionScene
+     * @param initialValue
+     * @return
+     */
+    private static Parcel LIGHT_SCENE_STATE_BUILDER(String name, boolean motionScene, Parcel initialValue){
+        Parcel p = new Parcel();
+        p.put(MOTION_LIGHT_SCENE_KEY, motionScene);
+        p.put(LIGHT_SCENE_NAME_KEY, name);
+        p.put(INIT_LIGHT_SCENE_KEY, initialValue);
+        return p;
+    }
+
+    private static Parcel SCENE_BUILDER(){
+        Parcel p = new Parcel();
+        p.put(ACTIVE_LIGHT_SCENE_KEY, UNKNOWN_LIGHT_SCENE);
+        p.put(LIGHT_SCENES_KEY, new Parcel());
+        return p;
+    }
+
+    private static Parcel phLightStateToParcel(PHLightState phLightState){
+        Parcel p = new Parcel();
+        p.put(LIGHT_STATE_POWER_KEY, phLightState.isOn());
+        p.put(LIGHT_STATE_COLOR_MODE, phLightState.getColorMode().toString());
+
+        switch (phLightState.getColorMode()){
+            case COLORMODE_CT:
+                p.put(LIGHT_STATE_COLOR_TEMP, phLightState.getCt());
+                break;
+            case COLORMODE_HUE_SATURATION:
+                p.put(LIGHT_STATE_HUE_KEY, phLightState.getHue());
+                p.put(LIGHT_STATE_SATURATION_KEY, phLightState.getSaturation());
+                p.put(LIGHT_STATE_VALUE_KEY, phLightState.getBrightness());
+                break;
+            case COLORMODE_XY:
+                p.put(LIGHT_STATE_X_KEY, phLightState.getX());
+                p.put(LIGHT_STATE_Y_KEY, phLightState.getY());
+                break;
+            case COLORMODE_UNKNOWN:
+            case COLORMODE_NONE:
+                p.put(LIGHT_STATE_COLOR_TEMP, phLightState.getCt());
+                p.put(LIGHT_STATE_HUE_KEY, phLightState.getHue());
+                p.put(LIGHT_STATE_SATURATION_KEY, phLightState.getSaturation());
+                p.put(LIGHT_STATE_VALUE_KEY, phLightState.getBrightness());
+                p.put(LIGHT_STATE_X_KEY, phLightState.getX());
+                p.put(LIGHT_STATE_Y_KEY, phLightState.getY());
+        }
+        return p;
+    }
+
+
+    /*
+    Set a PHlight using strings
+    @TODO dont crash on invalid input
+    */
+    private static PHLightState phLightStateFromParcel(Parcel p) throws SystemException {
+        PHLightState newState = new PHLightState();
+        if(p.containsKey(LIGHT_STATE_HUE_KEY))
+            newState.setHue(p.getInteger(LIGHT_STATE_HUE_KEY));
+        if(p.containsKey(LIGHT_STATE_SATURATION_KEY))
+            newState.setSaturation(p.getInteger(LIGHT_STATE_SATURATION_KEY));
+        if(p.containsKey(LIGHT_STATE_VALUE_KEY))
+            newState.setBrightness(p.getInteger(LIGHT_STATE_VALUE_KEY));
+        if(p.containsKey(LIGHT_STATE_POWER_KEY))
+            newState.setOn(p.getBoolean(LIGHT_STATE_POWER_KEY));
+        if(p.containsKey(LIGHT_STATE_TRANS_TIME))
+            newState.setHue(p.getInteger(LIGHT_STATE_TRANS_TIME));
+        if(p.contains(LIGHT_STATE_X_KEY))
+            newState.setX(p.getDouble(LIGHT_STATE_X_KEY).floatValue());
+        if(p.contains(LIGHT_STATE_Y_KEY))
+            newState.setY(p.getDouble(LIGHT_STATE_Y_KEY).floatValue());
+        if(p.contains(LIGHT_STATE_COLOR_TEMP))
+            newState.setCt(p.getInteger(LIGHT_STATE_COLOR_TEMP));
+        if(p.contains(LIGHT_STATE_COLOR_MODE))
+            newState.setColorMode(PHLight.PHLightColorMode.valueOf(p.getString(LIGHT_STATE_COLOR_MODE)));
+        return newState;
+    }
+
 
     private PHSceneListener sceneListener = new PHSceneListener() {
         @Override
@@ -220,8 +301,9 @@ public class HueSystem extends SystemParent{
      */
     private void populateFromCache() throws SystemException {
         for (PHLight light : cache.getAllLights()) {
-            state.getParcel(LIGHT_2_ID_KEY).put(light.getName(), light.getUniqueId());
-            state.getParcel(ID_2_LIGHT_KEY).put(light.getUniqueId(), light.getName());
+            state.getParcel(LIGHT_2_ID_KEY).put(light.getName(), light.getIdentifier());
+            state.getParcel(ID_2_LIGHT_KEY).put(light.getIdentifier(), light.getName());
+            state.getParcel(LIGHT_SCENE_KEY).put(light.getIdentifier(), SCENE_BUILDER());
         }
         for(PHGroup group : cache.getAllGroups()){
             state.getParcel(GROUP_2_ID_KEY).put(group.getName(), group.getIdentifier());
@@ -231,7 +313,21 @@ public class HueSystem extends SystemParent{
         for(PHScene scene : bridge.getResourceCache().getAllScenes()){
             state.getParcel(SCENE_2_ID_KEY).put(scene.getName(),scene.getSceneIdentifier());
             state.getParcel(ID_2_SCENE_KEY).put(scene.getName(),scene.getSceneIdentifier());
+            for(String lightId: scene.getLightIdentifiers()){
+                Map<String, PHLightState> lightState = scene.getLightStates();
+                Parcel sceneLightState = new Parcel();
+                if(lightState != null){
+                    sceneLightState = phLightStateToParcel(lightState.get(lightId));
+                }
+                else{
+                    sceneLightState.put(LIGHT_STATE_POWER_KEY, false);
+                }
+
+                state.getParcel(LIGHT_SCENE_KEY).getParcel(lightId).getParcel(LIGHT_SCENES_KEY).put(scene.getSceneIdentifier(), LIGHT_SCENE_STATE_BUILDER(scene.getName(), false, sceneLightState));
+            }
+
         }
+        System.out.println(state);
     }
 
     /**
@@ -373,24 +469,7 @@ public class HueSystem extends SystemParent{
     private void setLight(PHLight light, Parcel p) throws SystemException {
         lightCommands.add(HueParcel.LIGHT_UPDATE(light,phLightStateFromParcel(p.getParcel("to"))));
     }
-    /*
-    Set a PHlight using strings
-    @TODO dont crash on invalid input
-     */
-    private PHLightState phLightStateFromParcel(Parcel p) throws SystemException {
-        PHLightState newState = new PHLightState();
-        if(p.containsKey(LIGHT_STATE_HUE_KEY))
-            newState.setHue(p.getInteger("H"));
-        if(p.containsKey(LIGHT_STATE_SATURATION_KEY))
-            newState.setSaturation(p.getInteger(LIGHT_STATE_SATURATION_KEY));
-        if(p.containsKey(LIGHT_STATE_VALUE_KEY))
-            newState.setBrightness(p.getInteger(LIGHT_STATE_VALUE_KEY));
-        if(p.containsKey(LIGHT_STATE_POWER_KEY))
-            newState.setOn(p.getBoolean(LIGHT_STATE_POWER_KEY));
-        if(p.containsKey(LIGHT_STATE_TRANS_TIME))
-            newState.setHue(p.getInteger(LIGHT_STATE_TRANS_TIME));
-        return newState;
-    }
+
 
     private Parcel setLight(Parcel p) throws SystemException {
         setLight((PHLight) state.getParcel("name2Light").get(p.getString("light")), p);
@@ -556,9 +635,9 @@ public class HueSystem extends SystemParent{
             try {
                 system.update();
                 Thread.sleep(100);
-                for(PHLight light:system.allLights){
+               // for(PHLight light:system.allLights){
                    // System.out.print(light.getLastKnownLightState());
-                }
+               // }
               // System.out.println();
 
             } catch (InterruptedException | SystemException e) {

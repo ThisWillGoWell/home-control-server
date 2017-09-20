@@ -389,7 +389,7 @@ public class Parcel extends ConcurrentHashMap<String, Object> {
             } catch (SystemException e) {
                 e.printStackTrace();
             }
-            if(!(o instanceof StateValue)){
+            if(!(o instanceof StateValue) || ((StateValue) o).canRead()) {
                 json.append('"');
                 json.append(key);
                 json.append('"');
