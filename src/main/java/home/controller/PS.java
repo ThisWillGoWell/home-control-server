@@ -5,7 +5,10 @@ public class PS {
     //systemNames
     public static final String
         NETWORK_SYSTEM_NAME     = "network",
-        CHROMECAST_SYSTEM_NAME  = "chromecast";
+        CHROMECAST_SYSTEM_NAME  = "chromecast",
+        IR_REMOTE_SYSTEM_NAME   = "irRemote";
+
+
 
 
     public static final class GenericPS {
@@ -30,6 +33,13 @@ public class PS {
             PAYLOAD_KEY         = "payload";
     }
 
+    public static final class ClockPS{
+        public static final String
+            CLOCK_DISPLAY_MUTE = "imageMute",
+            CLOCK_DISPLAY_BRIGHTNESS = "brightness";
+    }
+
+
     public static final class NetworkDevices{
         //Network Mac
         public static final String
@@ -47,7 +57,7 @@ public class PS {
             WILL_PHONE_ANDROID              = "will-phone-android",
             WILL_PHONE_IPHONE               = "will-phone-iphone",
             PHILIPS_HUE                     = "philips-hue",
-            CHROMECAST_BEDROOM              = "Chromecast-Bedroom",
+            CHROMECAST_BEDROOM              = "Bedroom",
             CHROMECAST_LIVINGROOM           = "Chromecast-Livingroom";
     }
 
@@ -144,5 +154,36 @@ public class PS {
             SCENE_UPDATE_LIGHT_COMMAND  = "sceneLightUpdate",
             ALL_LIGHT_UPDATE_COMMAND    = "allLightUpdate",
             PH_LIGHT_STATE_KEY          = "phLightState";
+    }
+
+    public static class RemotePS{
+        public static final String
+            VOLUME_UP_REMOTE_KEY   = "volumeUp",
+            VOLUME_DOWN_REMOTE_KEY = "volumeDown",
+            POWER_REMOTE_KEY       = "power",
+            AUDIO_INPUT_SELECT   = "audioIn",
+            TV_INPUT_SELECT     = "tvIn",
+            AUX_INPUT_SELECT    = "auxIn",
+            MUTE_REMOTE_KEY            = "mute",
+
+            ENABLE_IR_REMOTE_STATE = "enableIR",
+            REMOTE_NAME = "remoteName",
+            REMOTE_CODE = "remoteCode",
+            POWER_REMOTE_STATE = "power",
+            VOLUME_REMOTE_STATE = "volume",
+            INPUT_REMOTE_STATE = "input",
+
+            BEDROOM_CHROMECAST_REMOTES_PRESET   = "bedroomChromecast",
+            BEDROOM_STANDARD_REMOTES_PRESET     = "bedroomStanard",
+            BEDROOM_OFF_REMOTES_PRESET          = "bedroomOff",
+
+            KEY_CODES_KEY = "keyCodes",
+            REMOTE_STATES_KEY = "remoteStates",
+            REMOTE_STATE_KEY = "remoteState",
+            PRESETS_KEY     = "presets",
+            PRESS_OP        ="press",
+            PRESET_UPDATE   = "preset";
+
+
     }
 }
