@@ -122,7 +122,10 @@ public abstract class SystemParent implements Runnable, Subscriber, Publisher {
         return engine;
     }
 
-
+    /**
+     * init is called before the first update after thread has been started
+     * @throws SystemException
+     */
     public void init() throws SystemException {
 
 
