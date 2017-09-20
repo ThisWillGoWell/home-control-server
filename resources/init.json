@@ -1,6 +1,7 @@
 {
   "chromecast":{},
   "irRemote":{},
+  "hvac":{},
   "media":{"init":[]},
   "hue":{},
   "network":{},
@@ -11,7 +12,7 @@
       "cron": "0 00 08 1/1 * ? *",
       "parcelArray":[
         { "op":"set", "system" : "irRemote", "what":"preset","to" : "bedroomChromecast"},
-        {"system" : "chromecast", "op":"play", "what": "radio",  "stationID":"classical","castName" : "Chromecast-Bedroom"},
+        {"system" : "chromecast", "op":"play", "what": "radio",  "stationID":"classical","castName" : "Bedroom"},
         { "op":"set", "system" : "hue", "what" : "group", "group":"Bedroom", "to" : "dim"}
       ]
     },{
@@ -19,7 +20,7 @@
       "name":"Play News, Turn up Lights at 8:05",
       "cron": "0 05 08 1/1 * ? *",
       "parcelArray":[
-        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"news","castName" : "Chromecast-Bedroom"},
+        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"news","castName" : "Bedroom"},
         { "op":"set", "system" : "hue", "what" : "group", "group":"Bedroom", "to" : "bright"}
       ]
     },{
@@ -27,7 +28,7 @@
       "name":"Switch to Rock at 8:11",
       "cron": "0 11 08 1/1 * ? *",
       "parcelArray":[
-        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"rock","castName" : "Chromecast-Bedroom"}
+        { "system" : "chromecast", "op":"play", "what": "radio",  "stationID":"rock","castName" : "Bedroom"}
       ]
     },{
       "op": "schedule",
@@ -36,7 +37,7 @@
       "cronStr":"At 09:15 on every day-of-week from Monday through Friday",
       "parcelArray":[
         { "op":"set", "what":"preset", "system" : "irRemote", "to" : "bedroomOff"},
-        { "system" : "irRemote", "op":"pause", "what": "radio",  "stationID":"rock","castName" : "Chromecast-Bedroom"},
+        { "system" : "irRemote", "op":"pause", "what": "radio",  "stationID":"rock","castName" : "Bedroom"},
         { "op":"set", "system" : "hue", "what" : "group", "group":"LivingRoom", "to" : "off"},
         { "op":"set", "system" : "hue", "what" : "group", "group":"Kitchen", "to" : "off"},
         { "op":"set", "system" : "hue", "what" : "group", "group":"Bedroom", "to" : "off"}
