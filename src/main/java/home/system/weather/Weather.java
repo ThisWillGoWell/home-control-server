@@ -25,9 +25,9 @@ public class Weather extends SystemParent{
 
     private static Parcel DEAFULT_WEATHER_STATE(){
         Parcel p = new Parcel();
-        p.put("currentWeatherURL", new StateValue("http://api.wunderground.com/api/0457bdf6163baa58/conditions/q/NY/Rochester.json", StateValue.READ_WRITE_PRIVLAGE));
-        p.put("weekForecastURL", new StateValue("http://api.wunderground.com/api/0457bdf6163baa58/forecast/q/NY/Rochester.json", StateValue.READ_WRITE_PRIVLAGE));
-        p.put("hourlyForecastURL", new StateValue("http://api.wunderground.com/api/0457bdf6163baa58/hourly/q/NY/Rochester.json", StateValue.READ_WRITE_PRIVLAGE));
+        p.put("currentWeatherURL", new StateValue("http://api.wunderground.com/api/0457bdf6163baa58/conditions/q/CA/Danville.json", StateValue.READ_WRITE_PRIVLAGE));
+        p.put("weekForecastURL", new StateValue("http://api.wunderground.com/api/0457bdf6163baa58/forecast/q/CA/Danville.json", StateValue.READ_WRITE_PRIVLAGE));
+        p.put("hourlyForecastURL", new StateValue("http://api.wunderground.com/api/0457bdf6163baa58/hourly/q/CA/Danville.json", StateValue.READ_WRITE_PRIVLAGE));
         p.put("conditions", new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
         p.put("weeklyForecast", new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
         p.put("hourlyForecast", new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
