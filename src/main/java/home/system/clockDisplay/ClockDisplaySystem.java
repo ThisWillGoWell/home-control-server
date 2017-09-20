@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import home.controller.Engine;
 import home.parcel.Parcel;
+import home.parcel.StateValue;
 import home.parcel.SystemException;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import static home.controller.PS.ClockPS.*;
+
+
 /**
  * The System level clock display
  * manages a set of display elements, writes the resource gif
@@ -46,12 +50,21 @@ public class ClockDisplaySystem extends SystemParent{
 
     public static final String systemIdentifier = "clock";
 
+    Parcel state = DEAFULT_SYSTEM_STATE();
     private int rows = 32;
-    private int cols = 96;
+    private int cols = 64;
     private SpriteDict spriteDict;
     private ArrayList<DisplayElement> elements = new ArrayList<>();
     private File resourceGif;
     private LayerManager layerManager;
+
+    static Parcel DEAFULT_SYSTEM_STATE(){
+        Parcel p = new Parcel();
+        p.put(CLOCK_DISPLAY_BRIGHTNESS, new StateValue(1.0, StateValue.READ_WRITE_PRIVLAGE));
+        p.put(CLOCK_DISPLAY_MUTE, new StateValue(false, StateValue.READ_WRITE_PRIVLAGE));
+
+        return p;
+    }
 
     public ClockDisplaySystem( Engine e)
     {
@@ -63,8 +76,10 @@ public class ClockDisplaySystem extends SystemParent{
             e1.printStackTrace();
         }
         layerManager = new LayerManager();
-        elements.add(new ClockElement("clock", this, 2,0,18,new SimpleDateFormat("h:mm"), 5));
-        //elements.add(new WeatherElement("weather", this,8,23,18, 20000,e));
+        elements.add(new ClockElement("clock", this, 2,0,-3,new SimpleDateFormat("h:mm"), 5));
+        elements.add(new ClockElement("clock-seconds", this, 1,59,8,new SimpleDateFormat("ss"), 2));
+
+        elements.add(new WeatherElement("weather", this,8,23,1, 20000,e));
         //elements.add(new HVACMotionElement("hvac-mon", this, 25,89));
 
         update();
@@ -76,6 +91,16 @@ public class ClockDisplaySystem extends SystemParent{
         switch (p.getString("op")){
             case "get":
                 return get(p);
+            case "set":
+                switch (p.getString("what")) {
+                    default:
+                        StateValue sp = state.getStateParcel(p.getString("what"));
+                        if (sp.canWrite()) {
+                            sp.update(p.get("to"));
+                            return Parcel.RESPONSE_PARCEL(sp.getValue());
+                        }
+                        throw SystemException.ACCESS_DENIED(p);
+                }
             default:
                 throw SystemException.OP_NOT_SUPPORTED(p);
         }
@@ -103,7 +128,7 @@ public class ClockDisplaySystem extends SystemParent{
         }
     }
 
-    private String getImageUpdate(long start, long stop, long interval, boolean fullImage){
+    private String getImageUpdate(long start, long stop, long interval, boolean fullImage) throws SystemException {
 
         JsonObject imageUpdate = new JsonObject();
         JsonArray frames = new JsonArray();
@@ -134,8 +159,13 @@ public class ClockDisplaySystem extends SystemParent{
         imageUpdate.addProperty("start",start);
         imageUpdate.addProperty("stop", stop);
         imageUpdate.addProperty("interval", interval);
-        imageUpdate.addProperty("alpha",10);
-        System.out.println(imageUpdate.toString());
+        if(state.getBoolean(CLOCK_DISPLAY_MUTE)) {
+            imageUpdate.addProperty("alpha", state.getDouble(CLOCK_DISPLAY_BRIGHTNESS));
+        }
+        else{
+            imageUpdate.addProperty("alpha",0);
+        }
+        //System.out.println(imageUpdate.toString());
         return imageUpdate.toString();
     }
 
