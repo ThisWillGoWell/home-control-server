@@ -8,10 +8,13 @@ import home.parcel.StateValue;
 import home.system.SystemParent;
 
 /**
- * Created by Will on 9/3/2016.
+ * Created by Will on 9/3/201
+ *          20 -> middle6.
  * Class to manage the HVAC system
  * Controls Heater, AC and Fan
- *
+ * pinout:  gnd -> gnd
+ *           21 -> bottom
+*           16 -> top
  */
 
 public class HvacSystem extends SystemParent{
