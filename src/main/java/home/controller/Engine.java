@@ -139,11 +139,11 @@ public class Engine{
 
     public Parcel digestParcel(Parcel p){
         try {
-            Logger.log(p.toString(),Logger.LOG_LEVEL_WEB);
+            //Logger.log(p.toString(),Logger.LOG_LEVEL_WEB);
             Parcel response;
             if(runningSystems.containsKey(p.getString("system"))){
                 response = runningSystems.get(p.getString("system")).command(p);
-                Logger.log(response.toString(),Logger.LOG_LEVEL_WEB);
+                //Logger.log(response.toString(),Logger.LOG_LEVEL_WEB);
                 return response;
             }
             else{
