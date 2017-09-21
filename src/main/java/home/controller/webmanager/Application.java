@@ -2,6 +2,7 @@
 package home.controller.webmanager;
 
 import home.controller.Engine;
+import home.parcel.ParcelArray;
 import org.springframework.ui.ModelMap;
 import home.parcel.Parcel;
 import home.parcel.SystemException;
@@ -48,17 +49,41 @@ public class Application extends SpringBootServletInitializer{
 
     @RequestMapping(value = "/c", method = RequestMethod.POST)
     public Object command(@RequestBody String jsonString) {
-        Parcel p = e.digestParcel(Parcel.PROCESS_JSONSTR(jsonString));
+        if(jsonString.substring(0,1).equals("[")){
+            ParcelArray pa = new ParcelArray();
+            pa = e.digestParcels(ParcelArray.PROCESS_JSONARRAY(jsonString));
+            try {
+                StringBuilder response = new StringBuilder("[");
+                for(Parcel p : pa.getParcelArray()){
+                    response.append(p.toPayload()).append(",");
+                }
+                if(response.length() > 1){
+                    response.deleteCharAt(response.length()-1);
+                }
+                response.append("]");
+                return response;
+            } catch (SystemException e1) {
+                return Parcel.RESPONSE_PARCEL_ERROR(e1);
+            }
+        }
         try {
-            String s = (String) p.toPayload();
+            Parcel p = e.digestParcel(Parcel.PROCESS_JSONSTR(jsonString));
             return p.toPayload();
         } catch (SystemException e1) {
             return Parcel.RESPONSE_PARCEL_ERROR(e1);
         }
+
+
     }
 
+    @RequestMapping(value = {"/c/", "/c"}, method = RequestMethod.GET)
+    public Object command( @RequestParam Map<String,String> allRequestParams, ModelMap model) throws SystemException {
+        return e.digestParcel(new Parcel(allRequestParams)).toPayload();
+    }
+
+
     @RequestMapping(value = "/spotifyRD", method = RequestMethod.GET)
-    public Object command(@RequestParam Map<String,String> allRequestParams, ModelMap model ) {
+    public Object spotify(@RequestParam Map<String,String> allRequestParams, ModelMap model ) {
         Parcel requset = null;
         try {
             requset = Parcel.SET_PARCEL("spotify","userCode",Parcel.PROCESS_MAP(allRequestParams).getString("code"));

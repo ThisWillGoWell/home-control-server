@@ -42,6 +42,10 @@ public class ParcelArray extends ArrayList<Object>{
 
     }
 
+    public static ParcelArray PROCESS_JSONARRAY(String jsonArray){
+        return PROCESS_JSONARRAY(new JSONArray(jsonArray));
+    }
+
     public static ParcelArray PROCESS_JSONARRAY(JSONArray jsonArray){
         ParcelArray pa = new ParcelArray();
         for(int i=0;i<jsonArray.length();i++){

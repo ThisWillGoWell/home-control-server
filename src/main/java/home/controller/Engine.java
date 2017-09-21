@@ -2,6 +2,7 @@
 package home.controller;
 
 import home.controller.webmanager.Application;
+import home.parcel.ParcelArray;
 import home.system.chromecast.ChromeCastSystem;
 import home.system.clockDisplay.ClockDisplaySystem;
 import home.system.coffee.Coffee;
@@ -138,21 +139,36 @@ public class Engine{
     }
 
     public Parcel digestParcel(Parcel p){
+        ParcelArray pa = new ParcelArray();
+        pa.add(p);
         try {
-            //Logger.log(p.toString(),Logger.LOG_LEVEL_WEB);
-            Parcel response;
-            if(runningSystems.containsKey(p.getString("system"))){
-                response = runningSystems.get(p.getString("system")).command(p);
-                //Logger.log(response.toString(),Logger.LOG_LEVEL_WEB);
-                return response;
-            }
-            else{
-                throw SystemException.SYSTEM_NOT_FOUND_EXCEPTION(p);
+            return digestParcels(pa).getParcel(0);
+        } catch (SystemException e) {
+           return Parcel.RESPONSE_PARCEL_ERROR(e);
+        }
+    }
+
+    public ParcelArray digestParcels(ParcelArray pa){
+        //Logger.log(p.toString(),Logger.LOG_LEVEL_WEB);
+        ParcelArray responses = new ParcelArray();
+        try {
+            for (Parcel p : pa.getParcelArray()) {
+                try {
+                    if (runningSystems.containsKey(p.getString("system"))) {
+                        //Logger.log(response.toString(),Logger.LOG_LEVEL_WEB);
+                        responses.add(runningSystems.get(p.getString("system")).command(p));
+                    } else {
+                        throw SystemException.SYSTEM_NOT_FOUND_EXCEPTION(p);
+                    }
+                } catch (SystemException e) {
+                    Logger.log(e);
+                    responses.add(Parcel.RESPONSE_PARCEL_ERROR(e));
+                }
             }
         } catch (SystemException e) {
-            Logger.log(e);
-            return Parcel.RESPONSE_PARCEL_ERROR(e);
+            responses.add(Parcel.RESPONSE_PARCEL_ERROR(e));
         }
+        return responses;
     }
 
 
