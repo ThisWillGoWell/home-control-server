@@ -161,7 +161,7 @@ public class ChromeCastSystem extends SystemParent {
         Parcel p = new Parcel();
         p.put(CHROMECAST_AUDIO_BEDROOM, castContainerParcel(CHROMECAST_AUDIO_BEDROOM));
         p.put(CHROMECAST_BEDROOM, castContainerParcel(CHROMECAST_BEDROOM, "192.168.1.4"));
-        p.put(CHROMECAST_LIVINGROOM, castContainerParcel(CHROMECAST_LIVINGROOM, "192.168.1.62   "));
+        p.put(CHROMECAST_LIVINGROOM, castContainerParcel(CHROMECAST_LIVINGROOM, "192.168.1.62"));
         return p;
     }
 
