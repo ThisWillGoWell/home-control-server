@@ -594,6 +594,7 @@ public class Parcel extends ConcurrentHashMap<String, Object> {
         ret.add(Double.class);
         ret.add(Parcel.class);
         ret.add(ParcelArray.class);
+        ret.add(StateValue.class);
         return ret;
     }
 
