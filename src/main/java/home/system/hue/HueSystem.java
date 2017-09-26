@@ -8,20 +8,29 @@ import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatManager;
 import com.philips.lighting.hue.sdk.utilities.PHUtilities;
 import com.philips.lighting.model.*;
 import home.controller.Engine;
-import home.controller.Logger;
+import home.controller.webmanager.Application;
 import home.parcel.Parcel;
 import home.parcel.StateValue;
 import home.parcel.SystemException;
 import home.system.SystemParent;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.HttpClientBuilder;
 
-import javax.swing.plaf.nimbus.State;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.philips.lighting.model.PHLight.PHLightColorMode.COLORMODE_CT;
 import static home.controller.PS.HuePS.*;
 import static home.controller.PS.GenericPS.*;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
+
 
 /**
  * Created by Willi on 9/26/2016.
@@ -45,7 +54,9 @@ public class HueSystem extends SystemParent{
     private Parcel state;
     private boolean connected = false;
     private PHAccessPoint accessPoint;
+    private HttpClient httpClient;
 
+    private static Logger log = Logger.getLogger(HueSystem.class);
     //Secrete Strings
     //Light Update Commands
 
@@ -59,6 +70,8 @@ public class HueSystem extends SystemParent{
         p.put(ID_2_GROUP_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
         p.put(LIGHT_SCENE_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
         p.put(SEND_PERIOD_KEY, new StateValue(40, StateValue.READ_WRITE_PRIVLAGE));
+
+        p.put(MOTION_SCENE_LIST_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
 
         return p;
     }
@@ -85,6 +98,13 @@ public class HueSystem extends SystemParent{
         return p;
     }
 
+    private static Parcel MOTION_SCENE_BUILDER(String effect, Parcel lights){
+        Parcel p = new Parcel();
+        p.put(MOTION_SCENE_TYPE_KEY, effect);
+        p.put(MOTION_SCENE_LIGHTS_KEY, lights);
+        p.put(MOTION_SCENE_RUNNABLE_KEY, HueMotionScene);
+    }
+
     private static Parcel phLightStateToParcel(PHLightState phLightState){
         Parcel p = new Parcel();
         p.put(LIGHT_STATE_POWER_KEY, phLightState.isOn());
@@ -97,7 +117,7 @@ public class HueSystem extends SystemParent{
             case COLORMODE_HUE_SATURATION:
                 p.put(LIGHT_STATE_HUE_KEY, phLightState.getHue());
                 p.put(LIGHT_STATE_SATURATION_KEY, phLightState.getSaturation());
-                p.put(LIGHT_STATE_VALUE_KEY, phLightState.getBrightness());
+                p.put(LIGHT_STATE_BRIGHTNESS_KEY, phLightState.getBrightness());
                 break;
             case COLORMODE_XY:
                 p.put(LIGHT_STATE_X_KEY, phLightState.getX());
@@ -108,7 +128,7 @@ public class HueSystem extends SystemParent{
                 p.put(LIGHT_STATE_COLOR_TEMP, phLightState.getCt());
                 p.put(LIGHT_STATE_HUE_KEY, phLightState.getHue());
                 p.put(LIGHT_STATE_SATURATION_KEY, phLightState.getSaturation());
-                p.put(LIGHT_STATE_VALUE_KEY, phLightState.getBrightness());
+                p.put(LIGHT_STATE_BRIGHTNESS_KEY, phLightState.getBrightness());
                 p.put(LIGHT_STATE_X_KEY, phLightState.getX());
                 p.put(LIGHT_STATE_Y_KEY, phLightState.getY());
         }
@@ -126,12 +146,16 @@ public class HueSystem extends SystemParent{
             newState.setHue(p.getInteger(LIGHT_STATE_HUE_KEY));
         if(p.containsKey(LIGHT_STATE_SATURATION_KEY))
             newState.setSaturation(p.getInteger(LIGHT_STATE_SATURATION_KEY));
-        if(p.containsKey(LIGHT_STATE_VALUE_KEY))
-            newState.setBrightness(p.getInteger(LIGHT_STATE_VALUE_KEY));
+        if(p.containsKey(LIGHT_STATE_BRIGHTNESS_KEY))
+            newState.setBrightness(p.getInteger(LIGHT_STATE_BRIGHTNESS_KEY));
         if(p.containsKey(LIGHT_STATE_POWER_KEY))
             newState.setOn(p.getBoolean(LIGHT_STATE_POWER_KEY));
         if(p.containsKey(LIGHT_STATE_TRANS_TIME))
             newState.setHue(p.getInteger(LIGHT_STATE_TRANS_TIME));
+        if(p.contains(LIGHT_STATE_XY_KEY)){
+            newState.setX(p.getParcelArray(LIGHT_STATE_XY_KEY).getDouble(0).floatValue());
+            newState.setY(p.getParcelArray(LIGHT_STATE_XY_KEY).getDouble(1).floatValue());
+        }
         if(p.contains(LIGHT_STATE_X_KEY))
             newState.setX(p.getDouble(LIGHT_STATE_X_KEY).floatValue());
         if(p.contains(LIGHT_STATE_Y_KEY))
@@ -156,17 +180,18 @@ public class HueSystem extends SystemParent{
 
         @Override
         public void onStateUpdate(Map<String, String> map, List<PHHueError> list) {
-
+            System.out.println(map + "  "+ list);
         }
 
         @Override
         public void onScenesReceived(List<PHScene> list) {
+            System.out.println( list);
 
         }
 
         @Override
         public void onSceneReceived(PHScene phScene) {
-
+            System.out.println(phScene.toString());
         }
     };
 
@@ -176,10 +201,18 @@ public class HueSystem extends SystemParent{
     public HueSystem( Engine e)
     {
         super(systemIdentifier, e, 10);
+        log.debug("debug");
+        log.warn("warn");
+        log.info("info");
+        Logger.getLogger(org.apache.http.HttpHeaders.class).setLevel(Level.INFO);
+
+
         phHueSDK = PHHueSDK.getInstance();
         state = LIGHT_DEFAULT_STATE();
         lightCommands = new ArrayList<>();
         SystemParent system = this;
+         httpClient = HttpClientBuilder.create().build();
+
         sdkListener = new PHSDKListener() {
             @Override
             public void onAccessPointsFound(List accessPoint) {
@@ -192,6 +225,7 @@ public class HueSystem extends SystemParent{
             public void onCacheUpdated(List cacheNotificationsList, PHBridge bridge) {
                 // Here you receive notifications that the BridgeResource Cache was updated. Use the PHMessageType to
                 // check which cache was updated, e.g.
+
                 if (cacheNotificationsList.contains(PHMessageType.LIGHTS_CACHE_UPDATED)) {
                  //   System.out.println("Lights Cache Updated ");
                     //processLightChange();
@@ -202,7 +236,7 @@ public class HueSystem extends SystemParent{
             @Override
             public void onBridgeConnected(PHBridge b, String username) {
                 connected = true;
-                Logger.log(system, "Bridge Connected: " + username, Logger.LOG_LEVEL_INFO);
+                //Logger.log(system, "Bridge Connected: " + username, Logger.LOG_LEVEL_INFO);
                 phHueSDK.setSelectedBridge(b);
                 PHHeartbeatManager heartbeatManager = PHHeartbeatManager.getInstance();
 
@@ -222,7 +256,7 @@ public class HueSystem extends SystemParent{
 
             @Override
             public void onAuthenticationRequired(PHAccessPoint accessPoint) {
-                Logger.log(system, "Auth Required", Logger.LOG_LEVEL_INFO);
+                //Logger.log(system, "Auth Required", Logger.LOG_LEVEL_INFO);
                 phHueSDK.startPushlinkAuthentication(accessPoint);
                 // Arriving here indicates that Pushlinking is required (to prove the User has physical access to the bridge).  Typically here
                 // you will display a pushlink image (with a timer) indicating to to the user they need to push the button on their bridge within 30 seconds.
@@ -236,14 +270,14 @@ public class HueSystem extends SystemParent{
             @Override
             public void onConnectionLost(PHAccessPoint accessPoint) {
                 // Here you would handle the loss of connection to your bridge.
-                Logger.log(system, "Bridge Connection lost", Logger.LOG_LEVEL_INFO);
+                //Logger.log(system, "Bridge Connection lost", Logger.LOG_LEVEL_INFO);
                 connected = false;
             }
 
             @Override
             public void onError(int code, final String message) {
                 // Here you can handle events such as Bridge Not Responding, Authentication Failed and Bridge Not Found
-                Logger.log(system, "Bridge Error " + code + ": " + message, Logger.LOG_LEVEL_ERROR);
+                //Logger.log(system, "Bridge Error " + code + ": " + message, Logger.LOG_LEVEL_ERROR);
                 System.out.println(message);
             }
 
@@ -291,9 +325,12 @@ public class HueSystem extends SystemParent{
         accessPoint.setUsername(HUE_USERNAME);
 
         phHueSDK.getNotificationManager().registerSDKListener(sdkListener);
+
         phHueSDK.connect(accessPoint);
         phHueSDK.setAppName("Home Control");
         phHueSDK.setDeviceName("server");
+
+
     }
 
     /*
@@ -313,19 +350,20 @@ public class HueSystem extends SystemParent{
         for(PHScene scene : bridge.getResourceCache().getAllScenes()){
             state.getParcel(SCENE_2_ID_KEY).put(scene.getName(),scene.getSceneIdentifier());
             state.getParcel(ID_2_SCENE_KEY).put(scene.getName(),scene.getSceneIdentifier());
-            for(String lightId: scene.getLightIdentifiers()){
-                Map<String, PHLightState> lightState = scene.getLightStates();
-                Parcel sceneLightState = new Parcel();
-                if(lightState != null){
-                    sceneLightState = phLightStateToParcel(lightState.get(lightId));
-                }
-                else{
-                    sceneLightState.put(LIGHT_STATE_POWER_KEY, false);
+            for(String lightId: scene.getLightIdentifiers()) {
+                Parcel lightState = null;
+                try {
+                    lightState = getLightStatesPostRequest(scene.getSceneIdentifier());
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
-                state.getParcel(LIGHT_SCENE_KEY).getParcel(lightId).getParcel(LIGHT_SCENES_KEY).put(scene.getSceneIdentifier(), LIGHT_SCENE_STATE_BUILDER(scene.getName(), false, sceneLightState));
+                if (lightState != null && lightState.size() > 0) {
+                    Parcel sceneLightState = lightState.getParcel(lightId);
+                    //state.getParcel(LIGHT_SCENE_KEY).getParcel(lightId).getParcel(LIGHT_SCENES_KEY).put(scene.getSceneIdentifier(), LIGHT_SCENE_STATE_BUILDER(scene.getName(), false, sceneLightState));
+
+                }
             }
-
         }
         System.out.println(state);
     }
@@ -412,10 +450,8 @@ public class HueSystem extends SystemParent{
         return null;
     }
 
-
-
     /*
-    Useing the String "to" do the required actions to set the program in that mode
+     *   Useing the String "to" do the required actions to set the program in that mode
      */
     private void setMode(Parcel p) throws SystemException {
         switch (p.getString("to")){
@@ -540,7 +576,6 @@ public class HueSystem extends SystemParent{
     On update, check if there needs to be anything changed for the current mode
     let the mode handel the acutal change
      */
-
     private void setAllRoom(){
 
     }
@@ -590,6 +625,16 @@ public class HueSystem extends SystemParent{
         }
     }
 
+    private Parcel getLightStatesPostRequest(String sceneId) throws IOException, SystemException {
+        String url = String.format("http://%s/api/%s/scenes/%s/", HUE_IP, HUE_USERNAME, sceneId);
+        HttpGet request = null;
+        request = new HttpGet(url);
+        ResponseHandler<String> responseHandler = new BasicResponseHandler();
+        String response = httpClient.execute(request, responseHandler);
+        return Parcel.PROCESS_JSONSTR(response).getParcel("lightstates");
+
+    }
+
     /*
     private void processLightChange()
     {
@@ -616,6 +661,7 @@ public class HueSystem extends SystemParent{
 
     public static void main(String[] args)
     {
+        Application.disableHTTPLogging();
         HueSystem system = new HueSystem(null);
         try{
             Thread.sleep(1000);

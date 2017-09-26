@@ -132,6 +132,25 @@ public class PS {
             ID_2_SCENE_KEY  = "id2Group",
             SEND_PERIOD_KEY = "sendFrequency",
             LIGHT_SCENE_KEY = "lightScenes",
+            MOTION_SCENE_LIST_KEY = "activeMotionScenes",
+
+            //motion scene
+            MOTION_SCENE_TYPE_KEY = "motionSceneType",
+            MOTION_SCENE_RUNNABLE_KEY = "runner",
+            MOTION_SCENE_LIGHTS_KEY = "lights",
+
+            //motionSceneNames
+            MOTION_SCENE_RAINBOW = "rainbow",
+            MOTION_SCENE_HUE_SHIFT = "hueShift",
+            MOTION_SCENE_RANDOM_LIGHTS = "randomColors",
+            MOTION_SCENE_AMBANCE_SHIFT = "amabanceShift",
+            MOTION_SCENE_FALMES         ="flames",
+
+        //motion scene effct paramets
+            MS_EFFECT_UPDATE_INTERVAL = "updateInterval",
+            MS_EFFECT_CYCLE_TIME      = "cycleTime",
+
+
 
             //light scene stuff
             MOTION_LIGHT_SCENE_KEY          = "motionScene",
@@ -150,13 +169,14 @@ public class PS {
             MODE_ON         = "on",
             MODE_CUSTOM     = "custom",
 
-            LIGHT_STATE_HUE_KEY         = "H",
-            LIGHT_STATE_SATURATION_KEY  = "S",
-            LIGHT_STATE_VALUE_KEY       = "V",
-            LIGHT_STATE_POWER_KEY       = "power",
+            LIGHT_STATE_HUE_KEY         = "hue",
+            LIGHT_STATE_SATURATION_KEY  = "sat",
+            LIGHT_STATE_BRIGHTNESS_KEY = "bri",
+            LIGHT_STATE_POWER_KEY       = "on",
             LIGHT_STATE_TRANS_TIME      = "transTime",
             LIGHT_STATE_COLOR_TEMP      = "ct",
             LIGHT_STATE_COLOR_MODE     = "colormode",
+            LIGHT_STATE_XY_KEY           ="xy",
             LIGHT_STATE_X_KEY           ="x",
             LIGHT_STATE_Y_KEY           ="y",
 
