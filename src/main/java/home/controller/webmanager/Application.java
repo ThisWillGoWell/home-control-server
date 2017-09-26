@@ -2,6 +2,7 @@
 package home.controller.webmanager;
 
 import home.controller.Engine;
+
 import org.springframework.ui.ModelMap;
 import home.parcel.Parcel;
 import home.parcel.SystemException;
@@ -19,7 +20,16 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
+
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+
 
 @SpringBootApplication
 @EnableAutoConfiguration
@@ -28,6 +38,16 @@ import java.util.Map;
 @RestController
 public class Application extends SpringBootServletInitializer{
 
+    public static void disableHTTPLogging(){
+
+        Set<String> loggers = new HashSet<>(Arrays.asList("org.apache.http", "groovyx.net.http"));
+
+        for(String log:loggers) {
+            Logger logger = (Logger)LoggerFactory.getLogger(log);
+            logger.setLevel(Level.INFO);
+            logger.setAdditive(false);
+        }
+    }
 
     private static Engine e = null; //= new Engine();
 
@@ -36,6 +56,7 @@ public class Application extends SpringBootServletInitializer{
     }
 
     public static void main(String[] args) {
+        disableHTTPLogging();
         e = new Engine();
 
         SpringApplication.run(Application.class, args);
