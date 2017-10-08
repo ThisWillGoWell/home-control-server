@@ -192,7 +192,7 @@ public class ChromeCastSystem extends SystemParent {
      * Default states for the chromecasts objects
      * holds all the info needed to control the chromecasts
      *
-     * @param id
+     * @param id the id of the chomecast
      * @return
      */
     private static Parcel virturalCastContainerParcel(String id) {
