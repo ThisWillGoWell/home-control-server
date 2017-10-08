@@ -133,23 +133,31 @@ public class PS {
             SEND_PERIOD_KEY = "sendFrequency",
             LIGHT_SCENE_KEY = "lightScenes",
             MOTION_SCENE_LIST_KEY = "activeMotionScenes",
+            GROUP_LIGHTS_KEY= "groupLights",
+            LIGHT_INFO_KEY= "lightInfo",
+            //Inner Light Info
+            LIGHT_INFO_TYPE_KEY  = "lightType",
+            LIGHT_INFO_COLOR_SUPPORT_KEY = "supportsColor",
+            LIGHT_INFO_CT_SUPPORT_KEY = "supportsCt",
+            LIGHT_INFO_BRIGHTNESS_SUPPORT_KEY = "supportsBrightness",
+
 
             //motion scene
             MOTION_SCENE_TYPE_KEY = "motionSceneType",
-            MOTION_SCENE_RUNNABLE_KEY = "runner",
+            MOTION_SCENE_THREAD_KEY = "runningThread",
             MOTION_SCENE_LIGHTS_KEY = "lights",
 
             //motionSceneNames
             MOTION_SCENE_RAINBOW = "rainbow",
             MOTION_SCENE_HUE_SHIFT = "hueShift",
             MOTION_SCENE_RANDOM_LIGHTS = "randomColors",
-            MOTION_SCENE_AMBANCE_SHIFT = "amabanceShift",
+            MOTION_SCENE_AMBIANCE_SHIFT = "amabanceShift",
             MOTION_SCENE_FALMES         ="flames",
 
         //motion scene effct paramets
             MS_EFFECT_UPDATE_INTERVAL = "updateInterval",
             MS_EFFECT_CYCLE_TIME      = "cycleTime",
-
+            //
 
 
             //light scene stuff
@@ -168,6 +176,7 @@ public class PS {
             MODE_OFF        = "off",
             MODE_ON         = "on",
             MODE_CUSTOM     = "custom",
+            MODE_MOTION     = "motion",
 
             LIGHT_STATE_HUE_KEY         = "hue",
             LIGHT_STATE_SATURATION_KEY  = "sat",

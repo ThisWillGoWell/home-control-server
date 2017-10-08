@@ -526,13 +526,13 @@ public class Parcel extends ConcurrentHashMap<String, Object> {
         throw new SystemException("Key " + value + " not found in package " + toString(), SystemException.KEY_NOT_FOUND, this);
     }
 
-    public Runnable getRunnable(String value) throws SystemException {
+    public Thread getThread(String value) throws SystemException {
         if (this.containsKey(value)) {
             Object o = this.get(value);
             if(o instanceof StateValue)
                 o = ((StateValue) o).getValue();
-            if (o instanceof Runnable) {
-                return (Runnable) o;
+            if (o instanceof Thread) {
+                return (Thread) o;
             }
             throw new SystemException("Key " + value + " returns object " + o.toString() + " of class " + o.getClass().toString() + " Expected Runnable", SystemException.CLASS_CAST_ERROR, this);
         }

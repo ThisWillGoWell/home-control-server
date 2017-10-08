@@ -10,6 +10,7 @@ import com.philips.lighting.model.*;
 import home.controller.Engine;
 import home.controller.webmanager.Application;
 import home.parcel.Parcel;
+import home.parcel.ParcelArray;
 import home.parcel.StateValue;
 import home.parcel.SystemException;
 import home.system.SystemParent;
@@ -20,14 +21,13 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static home.controller.PS.HuePS.*;
 import static home.controller.PS.GenericPS.*;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 
@@ -49,7 +49,7 @@ public class HueSystem extends SystemParent{
     private PHLightListener lightLister;
     private PHBridgeResourcesCache cache;
     private HueMotionScene currentMotionScene;
-    private ArrayList<Parcel> lightCommands;
+    private ConcurrentLinkedQueue<Parcel> lightCommands;
     private long lastSendTime;
     private Parcel state;
     private boolean connected = false;
@@ -70,7 +70,8 @@ public class HueSystem extends SystemParent{
         p.put(ID_2_GROUP_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
         p.put(LIGHT_SCENE_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
         p.put(SEND_PERIOD_KEY, new StateValue(40, StateValue.READ_WRITE_PRIVLAGE));
-
+        p.put(GROUP_LIGHTS_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
+        p.put(LIGHT_INFO_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
         p.put(MOTION_SCENE_LIST_KEY, new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
 
         return p;
@@ -98,11 +99,14 @@ public class HueSystem extends SystemParent{
         return p;
     }
 
-    private static Parcel MOTION_SCENE_BUILDER(String effect, Parcel lights){
+    private static Parcel motionSceneBuilder(Parcel lights, HueSystem system, Parcel effect) throws SystemException {
         Parcel p = new Parcel();
+        Thread t = new Thread( HueMotionScene.HueMotionSceneFactory(lights,system, effect));
+        t.start();
         p.put(MOTION_SCENE_TYPE_KEY, effect);
         p.put(MOTION_SCENE_LIGHTS_KEY, lights);
-        p.put(MOTION_SCENE_RUNNABLE_KEY, HueMotionScene);
+        p.put(MOTION_SCENE_THREAD_KEY, t);
+        return p;
     }
 
     private static Parcel phLightStateToParcel(PHLightState phLightState){
@@ -195,21 +199,28 @@ public class HueSystem extends SystemParent{
         }
     };
 
+    private Parcel phLightToParcel(PHLight light){
+        Parcel p = new Parcel();
+        p.put(LIGHT_KEY, light.getIdentifier());
+        p.put(LIGHT_INFO_TYPE_KEY, light.getLightType().name());
+        p.put(LIGHT_INFO_COLOR_SUPPORT_KEY, light.supportsColor());
+        p.put(LIGHT_INFO_CT_SUPPORT_KEY, light.supportsCT());
+        p.put(LIGHT_INFO_BRIGHTNESS_SUPPORT_KEY, light.supportsBrightness());
+        return p;
+    }
+
     /*
     Hue System must update once every 10 ms for motion animations
      */
     public HueSystem( Engine e)
     {
         super(systemIdentifier, e, 10);
-        log.debug("debug");
-        log.warn("warn");
-        log.info("info");
-        Logger.getLogger(org.apache.http.HttpHeaders.class).setLevel(Level.INFO);
-
 
         phHueSDK = PHHueSDK.getInstance();
         state = LIGHT_DEFAULT_STATE();
-        lightCommands = new ArrayList<>();
+
+
+        lightCommands = new ConcurrentLinkedQueue<>();
         SystemParent system = this;
          httpClient = HttpClientBuilder.create().build();
 
@@ -245,6 +256,7 @@ public class HueSystem extends SystemParent{
                 cache = b.getResourceCache();
                 try {
                     populateFromCache();
+                    process(Parcel.PROCESS_JSONSTR("{ \"op\":\"set\", \"system\" : \"hue\", \"what\" : \"group\",\"group\":\"Bedroom\", \"to\" : \"motion\", \"motionSceneType\":\"rainbow\", \"cycleTime\": 5000, \"updateInterval\": 500}"));
                 } catch (SystemException e1) {
                     e1.printStackTrace();
                 }
@@ -329,10 +341,7 @@ public class HueSystem extends SystemParent{
         phHueSDK.connect(accessPoint);
         phHueSDK.setAppName("Home Control");
         phHueSDK.setDeviceName("server");
-
-
     }
-
     /*
     Populate the State Parcel using the cache
      */
@@ -341,31 +350,21 @@ public class HueSystem extends SystemParent{
             state.getParcel(LIGHT_2_ID_KEY).put(light.getName(), light.getIdentifier());
             state.getParcel(ID_2_LIGHT_KEY).put(light.getIdentifier(), light.getName());
             state.getParcel(LIGHT_SCENE_KEY).put(light.getIdentifier(), SCENE_BUILDER());
+            state.getParcel(LIGHT_INFO_KEY).put(light.getIdentifier(), phLightToParcel(light));
         }
         for(PHGroup group : cache.getAllGroups()){
             state.getParcel(GROUP_2_ID_KEY).put(group.getName(), group.getIdentifier());
             state.getParcel(ID_2_GROUP_KEY).put(group.getIdentifier(), group.getName());
+            ParcelArray lights = new ParcelArray();
+            lights.addAll(group.getLightIdentifiers());
+            state.getParcel(GROUP_LIGHTS_KEY).put(group.getIdentifier(), lights);
+
         }
 
-        for(PHScene scene : bridge.getResourceCache().getAllScenes()){
-            state.getParcel(SCENE_2_ID_KEY).put(scene.getName(),scene.getSceneIdentifier());
-            state.getParcel(ID_2_SCENE_KEY).put(scene.getName(),scene.getSceneIdentifier());
-            for(String lightId: scene.getLightIdentifiers()) {
-                Parcel lightState = null;
-                try {
-                    lightState = getLightStatesPostRequest(scene.getSceneIdentifier());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                if (lightState != null && lightState.size() > 0) {
-                    Parcel sceneLightState = lightState.getParcel(lightId);
-                    //state.getParcel(LIGHT_SCENE_KEY).getParcel(lightId).getParcel(LIGHT_SCENES_KEY).put(scene.getSceneIdentifier(), LIGHT_SCENE_STATE_BUILDER(scene.getName(), false, sceneLightState));
-
-                }
-            }
+        for(PHScene scene : bridge.getResourceCache().getAllScenes()) {
+            state.getParcel(SCENE_2_ID_KEY).put(scene.getName(), scene.getSceneIdentifier());
+            state.getParcel(ID_2_SCENE_KEY).put(scene.getName(), scene.getSceneIdentifier());
         }
-        System.out.println(state);
     }
 
     /**
@@ -392,8 +391,6 @@ public class HueSystem extends SystemParent{
                 }
             case SET_OP_KEY:
                 switch (p.getString(WHAT_KEY)) {
-                    case ALL_LIGHTS_KEY:
-                        return setAllLights(p);
                     case GROUP_KEY:
                         return setGroup(p);
                     case LIGHT_KEY:
@@ -404,6 +401,37 @@ public class HueSystem extends SystemParent{
                 throw SystemException.OP_NOT_SUPPORTED(p);
         }
 
+    }
+
+    /**
+     * Kill any motion that effects a single light
+     * @param lightId the light that is being updated
+     * @throws SystemException when something goes wrong
+     */
+    private void killAnyMotionForLight(String lightId) throws SystemException {
+        for(String motionScene: state.getParcel(MOTION_SCENE_LIST_KEY).keySet()){
+            if(state.getParcel(MOTION_SCENE_LIST_KEY).getParcel(MOTION_SCENE_LIGHTS_KEY).contains(lightId)){
+                state.getParcel(MOTION_SCENE_LIST_KEY).getParcel(motionScene).getThread(MOTION_SCENE_THREAD_KEY).interrupt();
+                state.getParcel(MOTION_SCENE_LIST_KEY).remove(motionScene);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Kill any motion scene that effects any lights in a group that was just updated
+     * @param groupID the group id that is being updated
+     * @throws SystemException if something is wrong
+     */
+    private void killAnyMotionForGroup(String groupID) throws SystemException {
+        for(String motionScene: state.getParcel(MOTION_SCENE_LIST_KEY).keySet()){
+            for(String light : state.getParcel(MOTION_SCENE_LIST_KEY).getParcel(motionScene).getParcel(MOTION_SCENE_LIGHTS_KEY).keySet())
+                if(state.getParcel(GROUP_LIGHTS_KEY).getParcelArray(groupID).contains(light)){
+                    state.getParcel(MOTION_SCENE_LIST_KEY).getParcel(motionScene).getThread(MOTION_SCENE_THREAD_KEY).interrupt();
+                    state.getParcel(MOTION_SCENE_LIST_KEY).remove(motionScene);
+                    return;
+                }
+        }
     }
 
     /**
@@ -419,20 +447,27 @@ public class HueSystem extends SystemParent{
      */
     private Parcel setGroup(Parcel p) throws SystemException {
         String group = p.getString(GROUP_KEY);
-
         String mode = p.getString(TO_KEY);
+
+        String groupID = state.getParcel(GROUP_2_ID_KEY).getString(group);
+        killAnyMotionForGroup(groupID);
+
         switch (mode){
             case MODE_OFF:
-                lightCommands.add(HueParcel.GROUP_UPDATE(state.getParcel(GROUP_2_ID_KEY).getString(group),
-                        phLightStateFromParcel(HueParcel.GENERATE_STATE(false))));
+                lightCommands.add(HueParcel.GROUP_UPDATE(groupID, HueParcel.GENERATE_STATE(false)));
                 break;
             case MODE_ON:
-                lightCommands.add(HueParcel.GROUP_UPDATE(state.getParcel(GROUP_2_ID_KEY).getString(group),
-                        phLightStateFromParcel(HueParcel.GENERATE_STATE(false))));
+                lightCommands.add(HueParcel.GROUP_UPDATE(groupID, HueParcel.GENERATE_STATE(false)));
                 break;
             case MODE_CUSTOM:
-                lightCommands.add(HueParcel.GROUP_UPDATE(state.getParcel(GROUP_2_ID_KEY).getString(group),
-                        phLightStateFromParcel(p)));
+                lightCommands.add(HueParcel.GROUP_UPDATE(groupID, p));
+                break;
+            case MODE_MOTION:
+                Parcel lights = new Parcel();
+                for(Object lightID : state.getParcel(GROUP_LIGHTS_KEY).getParcelArray(groupID)){
+                    lights.put(lightID +"" , state.getParcel(LIGHT_INFO_KEY).getParcel(lightID + ""));
+                }
+                state.getParcel(MOTION_SCENE_LIST_KEY).put(p.getString(MOTION_SCENE_TYPE_KEY)+ "-" + group, motionSceneBuilder(lights, this, p ));
                 break;
             default:
                 String sceneId = group.toLowerCase() + "-" + mode.toLowerCase();
@@ -445,147 +480,21 @@ public class HueSystem extends SystemParent{
         return Parcel.RESPONSE_PARCEL("group set");
     }
 
-    private Parcel setAllLights(Parcel p) throws SystemException{
-        lightCommands.add(HueParcel.ALL_LIGHT_UPDATE(phLightStateFromParcel(p)));
-        return null;
-    }
-
-    /*
-     *   Useing the String "to" do the required actions to set the program in that mode
-     */
-    private void setMode(Parcel p) throws SystemException {
-        switch (p.getString("to")){
-            case "Off":
-                allOff();
-                currentMotionScene = null;
-                state.getStateParcel("liveMode").update(false);
-                state.getStateParcel("mode").update(p.getString("to"));
-                break;
-
-            case "Bright":
-            case "Dim":
-            case "Standard":
-                currentMotionScene = null;
-                allOn();
-                state.getStateParcel("liveMode").update(false);
-                lightCommands.add(HueParcel.SCENE_UPDATE(state.getParcel("name2Scene").getString(p.getString("to"))));
-                state.getStateParcel("mode").update(p.getString("to"));
-                break;
-
-            case "Rainbow":
-                state.getStateParcel("liveMode").update(true);
-                state.getStateParcel("mode").update("rainbow");
-                currentMotionScene = new RainbowScene(this);
-                break;
-
-            case "HueShift":
-                state.getStateParcel("liveMode").update(true);
-                state.getStateParcel("mode").update("hueShift");
-                //currentMotionScene = new HueShiftScene(this);
-                break;
-            case "RandomColors":
-                state.getStateParcel("liveMode").update(true);
-                state.getStateParcel("mode").update("randomColors");
-                currentMotionScene = new RandomColors(this);
-                break;
-
-            default:
-                throw SystemException.TO_NOT_SUPPORTED(p);
-        }
-    }
-
-
     /**
      * Light Commands
      * Set light given a light Id
-     * @param light
      * @param p
      * @throws SystemException
      */
-    private void setLight(PHLight light, Parcel p) throws SystemException {
-        lightCommands.add(HueParcel.LIGHT_UPDATE(light,phLightStateFromParcel(p.getParcel("to"))));
-    }
-
-
-    private Parcel setLight(Parcel p) throws SystemException {
-        setLight((PHLight) state.getParcel("name2Light").get(p.getString("light")), p);
-        return Parcel.RESPONSE_PARCEL("success");
-    }
-
-
-
-    /*
-    Set all the lights to something
-    @Todo use groups to have it all change at once
-    @todo dont break on improper input
-    @todo return int error
-     */
-    private void setAllLightss(Parcel p) throws SystemException {
-        PHLightState state = new PHLightState();
-        switch (p.getString("to")){
-            case "on":
-                state.setOn(true);
-                break;
-            case "off":
-                state.setOn(false);
-                break;
-            case "HSV":
-
-                if(p.containsKey("H"))
-                    state.setHue(p.getInteger("H"));
-                if(p.containsKey("S"))
-                    state.setSaturation(p.getInteger("S"));
-                if(p.containsKey("V"))
-                    state.setBrightness(p.getInteger("V"));
-                break;
-            case "RGB":
-                float xy[] = PHUtilities.calculateXYFromRGB(p.getInteger("R"),p.getInteger("G"),p.getInteger("B"), allLights.get(0).getModelNumber());
-                state.setX(xy[0]);
-                state.setY(xy[1]);
-                break;
-            case "longTransTime":
-                state = new PHLightState();
-                state.setTransitionTime(7);
-                break;
-
-            case "noTransTime":
-                state.setTransitionTime(0);
-                break;
-        }
-        lightCommands.add(HueParcel.ALL_LIGHT_UPDATE(state));
-    }
-
-    /*
-    Turn allvthe lights off
-     */
-    private void allOff()
-    {
-        PHLightState lightState = new PHLightState();
-        lightState.setOn(false);
-        lightCommands.add(HueParcel.ALL_LIGHT_UPDATE(lightState));
-    }
-
-    private void allOn()
-    {
-        PHLightState lightState = new PHLightState();
-        lightState.setOn(true);
-        lightCommands.add(HueParcel.ALL_LIGHT_UPDATE(lightState));
-    }
-
-    /*
-    On update, check if there needs to be anything changed for the current mode
-    let the mode handel the acutal change
-     */
-    private void setAllRoom(){
-
+    private Parcel setLight( Parcel p) throws SystemException {
+        p.put(PH_LIGHT_STATE_KEY, p.getParcel("to"));
+        lightCommands.add(p);
+        return Parcel.RESPONSE_PARCEL("Added State to light commands");
     }
 
     @Override
     public void update() throws SystemException {
        // System.out.println("Lights:");
-        if (currentMotionScene != null) {
-            currentMotionScene.update();
-        }
         try {
             if(lightCommands.size() != 0){
                 if(!phHueSDK.isAccessPointConnected(accessPoint)){
@@ -594,20 +503,20 @@ public class HueSystem extends SystemParent{
                 if(phHueSDK.isAccessPointConnected(accessPoint)) {
                     if (state.getInteger(SEND_PERIOD_KEY) + lastSendTime < System.currentTimeMillis()) {
                         if (lightCommands.size() > 0) {
-                            Parcel p = lightCommands.remove(0);
+                            Parcel p = lightCommands.remove();
                             if (connected) {
                                 switch (p.getString(TYPE_KEY)) {
                                     case ALL_LIGHT_UPDATE_COMMAND:
-                                        bridge.setLightStateForDefaultGroup((PHLightState) p.get(PH_LIGHT_STATE_KEY));
+                                        bridge.setLightStateForDefaultGroup(phLightStateFromParcel(p.getParcel(PH_LIGHT_STATE_KEY)));
                                         break;
                                     case SCENE_UPDATE_LIGHT_COMMAND:
-                                        bridge.activateScene(p.getString(SCENE_ID_KEY), "0", sceneListener);
+                                        bridge.activateScene(p.getString(SCENE_ID_KEY), "0", null);
                                         break;
-                                    case LIGHT_UPDATE_LIGHT_COMMAND   :
-                                        bridge.updateLightState((PHLight) p.get("light"), (PHLightState) p.get(PH_LIGHT_STATE_KEY), lightLister);
+                                    case LIGHT_UPDATE_LIGHT_COMMAND:
+                                        bridge.updateLightState(p.getString(LIGHT_KEY), phLightStateFromParcel(p.getParcel(PH_LIGHT_STATE_KEY)), null);
                                         break;
                                     case GROUP_UPDATE_LIGHT_COMMAND:
-                                        bridge.setLightStateForGroup(p.getString(GROUP_KEY), (PHLightState) p.get(PH_LIGHT_STATE_KEY));
+                                        bridge.setLightStateForGroup(p.getString(GROUP_KEY), phLightStateFromParcel(p.getParcel(PH_LIGHT_STATE_KEY)));
                                         break;
                                 }
                             }
@@ -635,27 +544,9 @@ public class HueSystem extends SystemParent{
 
     }
 
-    /*
-    private void processLightChange()
-    {
-
-        //Process light change
-
-        //UpdateCache
-        updateCache();
-
+    void addLightCommand(Parcel p) {
+        this.lightCommands.add(p);
     }
-
-    private void updateCache()
-    {
-        for(PHLight light : allLights)
-        {
-
-            lastState.put(light.getUniqueId(), light.getLastKnownLightState());
-        }
-    }
-    */
-
 
 
 
@@ -685,20 +576,12 @@ public class HueSystem extends SystemParent{
                    // System.out.print(light.getLastKnownLightState());
                // }
               // System.out.println();
-
             } catch (InterruptedException | SystemException e) {
                 e.printStackTrace();
             }
         }
-
-        //system.setAllLightsRGB(69,47,42);
-        //system.allOn();
-
     }
 
-    public static void testGroups(){
-
-    }
 
 
 
