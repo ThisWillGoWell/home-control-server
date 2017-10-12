@@ -1,5 +1,6 @@
 {
-
+  "conditional":{},
+  "homeState": {},
   "irRemote":{},
   "hvac":{},
   "media":{"init":[]},
