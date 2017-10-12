@@ -162,6 +162,7 @@ public class ChromeCastSystem extends SystemParent {
         p.put(CHROMECAST_AUDIO_BEDROOM, castContainerParcel(CHROMECAST_AUDIO_BEDROOM));
         p.put(CHROMECAST_BEDROOM, castContainerParcel(CHROMECAST_BEDROOM, "192.168.1.4"));
         p.put(CHROMECAST_LIVINGROOM, castContainerParcel(CHROMECAST_LIVINGROOM, "192.168.1.62"));
+        p.put("Luke's Chromecast", castContainerParcel("Luke's Chromecast", "192.168.42.148"));
         return p;
     }
 
@@ -238,7 +239,7 @@ public class ChromeCastSystem extends SystemParent {
     private static void controlCast(ChromeCast cast, String action, Parcel p) throws IOException, SystemException {
         switch (action) {
             default:
-                throw SystemException.GENERIC_EXCEPTION("Invlaid Action", p);
+                throw SystemException.GENERIC_EXCEPTION("Invalid Action", p);
             case PLAY_COMMAND:
                 cast.play();
                 break;
