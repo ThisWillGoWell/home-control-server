@@ -22,7 +22,7 @@ public class HvacSystem extends SystemParent{
     private Parcel state;
 
 
-    public static Parcel DEAFULT_HVAC_STATE(){
+    public static Parcel DEFAULT_HMAC_STATE(){
         Parcel p = new Parcel();
         p.put("systemTemp", new StateValue((double) 20, StateValue.READ_WRITE_PRIVLAGE));
         p.put("roomTemp", new StateValue( (double) 20, StateValue.READ_WRITE_PRIVLAGE));
@@ -42,7 +42,7 @@ public class HvacSystem extends SystemParent{
     public HvacSystem( Engine e)
     {
         super(systemIdentifier, e, 3500);
-        state = DEAFULT_HVAC_STATE();
+        state = DEFAULT_HMAC_STATE();
         update();
     }
 
