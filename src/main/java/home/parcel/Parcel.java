@@ -389,7 +389,7 @@ public class Parcel extends ConcurrentHashMap<String, Object> {
             } catch (SystemException e) {
                 e.printStackTrace();
             }
-            if(!(o instanceof StateValue)){
+            if(o != null && (!(o instanceof StateValue) || ((StateValue) o).canRead())) {
                 json.append('"');
                 json.append(key);
                 json.append('"');
@@ -526,6 +526,20 @@ public class Parcel extends ConcurrentHashMap<String, Object> {
         throw new SystemException("Key " + value + " not found in package " + toString(), SystemException.KEY_NOT_FOUND, this);
     }
 
+    public Thread getThread(String value) throws SystemException {
+        if (this.containsKey(value)) {
+            Object o = this.get(value);
+            if(o instanceof StateValue)
+                o = ((StateValue) o).getValue();
+            if (o instanceof Thread) {
+                return (Thread) o;
+            }
+            throw new SystemException("Key " + value + " returns object " + o.toString() + " of class " + o.getClass().toString() + " Expected Runnable", SystemException.CLASS_CAST_ERROR, this);
+        }
+        throw new SystemException("Key " + value + " not found in package " + toString(), SystemException.KEY_NOT_FOUND, this);
+    }
+
+
     public Subscriber getSubscriber(String value) throws SystemException {
         if (this.containsKey(value)) {
             Object o = this.get(value);
@@ -594,6 +608,7 @@ public class Parcel extends ConcurrentHashMap<String, Object> {
         ret.add(Double.class);
         ret.add(Parcel.class);
         ret.add(ParcelArray.class);
+        ret.add(StateValue.class);
         return ret;
     }
 

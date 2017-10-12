@@ -131,6 +131,43 @@ public class PS {
             ID_2_GROUP_KEY  = "id2Scene",
             ID_2_SCENE_KEY  = "id2Group",
             SEND_PERIOD_KEY = "sendFrequency",
+            LIGHT_SCENE_KEY = "lightScenes",
+            MOTION_SCENE_LIST_KEY = "activeMotionScenes",
+            GROUP_LIGHTS_KEY= "groupLights",
+            LIGHT_INFO_KEY= "lightInfo",
+            //Inner Light Info
+            LIGHT_INFO_TYPE_KEY  = "lightType",
+            LIGHT_INFO_COLOR_SUPPORT_KEY = "supportsColor",
+            LIGHT_INFO_CT_SUPPORT_KEY = "supportsCt",
+            LIGHT_INFO_BRIGHTNESS_SUPPORT_KEY = "supportsBrightness",
+
+
+            //motion scene
+            MOTION_SCENE_TYPE_KEY = "motionSceneType",
+            MOTION_SCENE_THREAD_KEY = "runningThread",
+            MOTION_SCENE_LIGHTS_KEY = "lights",
+
+            //motionSceneNames
+            MOTION_SCENE_RAINBOW = "rainbow",
+            MOTION_SCENE_HUE_SHIFT = "hueShift",
+            MOTION_SCENE_RANDOM_LIGHTS = "randomColors",
+            MOTION_SCENE_AMBIANCE_SHIFT = "amabanceShift",
+            MOTION_SCENE_FALMES         ="flames",
+
+        //motion scene effct paramets
+            MS_EFFECT_UPDATE_INTERVAL = "updateInterval",
+            MS_EFFECT_CYCLE_TIME      = "cycleTime",
+            //
+
+
+            //light scene stuff
+            MOTION_LIGHT_SCENE_KEY          = "motionScene",
+            INIT_LIGHT_SCENE_KEY            = "initValue",
+            CAN_OVERRIDE_LIGHT_SCENE_KEY    = "canOverride",
+            LIGHT_SCENE_NAME_KEY            ="sceneName",
+            LIGHT_SCENES_KEY                = "scenes",
+            ACTIVE_LIGHT_SCENE_KEY          = "activeScene",
+            UNKNOWN_LIGHT_SCENE             = "unknown",
             // Some inner stuffs now
             GROUP_KEY       = "group",
             MODE_KEY        = "mode",
@@ -139,12 +176,19 @@ public class PS {
             MODE_OFF        = "off",
             MODE_ON         = "on",
             MODE_CUSTOM     = "custom",
+            MODE_MOTION     = "motion",
 
-            LIGHT_STATE_HUE_KEY         = "H",
-            LIGHT_STATE_SATURATION_KEY  = "S",
-            LIGHT_STATE_VALUE_KEY       = "V",
-            LIGHT_STATE_POWER_KEY       = "power",
+            LIGHT_STATE_HUE_KEY         = "hue",
+            LIGHT_STATE_SATURATION_KEY  = "sat",
+            LIGHT_STATE_BRIGHTNESS_KEY = "bri",
+            LIGHT_STATE_POWER_KEY       = "on",
             LIGHT_STATE_TRANS_TIME      = "transTime",
+            LIGHT_STATE_COLOR_TEMP      = "ct",
+            LIGHT_STATE_COLOR_MODE     = "colormode",
+            LIGHT_STATE_XY_KEY           ="xy",
+            LIGHT_STATE_X_KEY           ="x",
+            LIGHT_STATE_Y_KEY           ="y",
+
 
             //internal lightCommands command
             TYPE_KEY                    = "type",

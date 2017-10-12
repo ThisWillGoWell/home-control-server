@@ -62,9 +62,9 @@ public class Scheduler extends SystemParent{
 
     public static void main(String[] args) {
         Engine e = new Engine();
-        Parcel p0 = HueParcel.SET_ALL_LIGHTS_ON_PARCEL();
+        //Parcel p0 = HueParcel.SET_ALL_LIGHTS_ON_PARCEL();
         ParcelArray pa = new ParcelArray();
-        pa.add(p0);
+        //pa.add(p0);
         Parcel p1  = new Parcel();
         p1.put("systemIdentifier", "AllLightOn");
         p1.put("cron", "0 0/1 * 1/1 * ? *");

@@ -124,12 +124,18 @@ public class SubscriberManager{
 
     }
 
+    //@todo make this better?
+    //@todo make irRemote use the remote as the listen key
     public static void broadcast(Publisher publisher, String listenKey, Parcel msg){
         msg.put("alert","broadcast");
+        ArrayList<Subscriber> broadcasted = new ArrayList<>();
         if(subscriptions.containsKey(publisher)){
             for(Subscription s : subscriptions.get(publisher)){
-                if(listenKey == null || Objects.equals(listenKey, s.listenKey)) {
-                    s.subscriber.subscriptionAlert(msg);
+                if(!broadcasted.contains(s.subscriber )) {
+                    broadcasted.add(s.subscriber);
+                    if (listenKey == null || Objects.equals(listenKey, s.listenKey)) {
+                        s.subscriber.subscriptionAlert(msg);
+                    }
                 }
             }
         }
