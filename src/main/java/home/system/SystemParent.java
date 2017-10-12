@@ -12,6 +12,8 @@ import home.controller.PS.GenericPS;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static home.controller.PS.GenericPS.*;
+
 
 /**
  * Created by Willi on 9/26/2016.
@@ -47,6 +49,7 @@ public abstract class SystemParent implements Runnable, Subscriber, Publisher {
         this.updateQueue = new ConcurrentLinkedQueue();
 
     }
+
     private void registerSubscriber(Parcel p) throws SystemException {
         Logger.log(this, "registering subscriber " + p.toString(), Logger.LOG_LEVEL_INFO);
         p.put(GenericPS.OP_KEY, "get");
@@ -87,19 +90,19 @@ public abstract class SystemParent implements Runnable, Subscriber, Publisher {
             switch (p.getString(GenericPS.OP_KEY)){
                 default:
                     return process(p);
-                case GenericPS.SUB_COMMAND:
+                case SUB_COMMAND:
                     registerSubscriber(p);
                     response=  Parcel.RESPONSE_PARCEL("register success");
                     break;
-                case GenericPS.DEREGISTER_COMMAND:
+                case DEREGISTER_COMMAND:
                     deregisterSubscriber(p.getSubscriber("subscriber"));
                     response = Parcel.RESPONSE_PARCEL("deregister success");
                     break;
-                case GenericPS.UPDATE_COMMAND:
+                case UPDATE_COMMAND:
                     update();
                     response = Parcel.RESPONSE_PARCEL("updated");
                     break;
-                case GenericPS.HELLO_COMMAND:
+                case HELLO_COMMAND:
                     response = Parcel.RESPONSE_PARCEL("hi");
                     break;
             }
