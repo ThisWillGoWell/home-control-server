@@ -3,19 +3,22 @@ package home.controller;
 import home.controller.subscriber.Subscriber;
 import home.parcel.Parcel;
 
+import static home.controller.PS.IFTTT.*;
+
 public class PP {
 
 
     /**
      * Generate a basic GET parcel
+     *
      * @param system System you want to get
-     * @param what the value you want to get
-     * @param args other args int the form of {key0, value0, key1, value1...}
+     * @param what   the value you want to get
+     * @param args   other args int the form of {key0, value0, key1, value1...}
      * @return the get parcel
      */
-    public static Parcel GetSystemValue(String system, String what, String... args){
+    public static Parcel GetSystemValue(String system, String what, String... args) {
         Parcel p = new Parcel();
-        p.put(PS.GenericPS.SYSTEM_KEY,system);
+        p.put(PS.GenericPS.SYSTEM_KEY, system);
         p.put(PS.GenericPS.OP_KEY, PS.GenericPS.GET_OP_KEY);
         p.put(PS.GenericPS.WHAT_KEY, what);
 
@@ -24,13 +27,14 @@ public class PP {
 
     /**
      * Adds all the arguments to the Parcel
+     *
      * @param p
      * @param args
      * @return
      */
-    public static Parcel addArgs(Parcel p, String... args){
-        for(int i=0;i<args.length/2; i++){
-            p.put(args[2*i],args[2*i + 1]);
+    public static Parcel addArgs(Parcel p, String... args) {
+        for (int i = 0; i < args.length / 2; i++) {
+            p.put(args[2 * i], args[2 * i + 1]);
         }
         return p;
     }
@@ -38,13 +42,14 @@ public class PP {
 
     /**
      * Subscribe to a systems get call
+     *
      * @param subscriber who is subsribing
-     * @param system what system am I subscribing too
-     * @param what what am I subscribing too inside the system
-     * @param args other args int the form of {key0, value0, key1, value1...}
+     * @param system     what system am I subscribing too
+     * @param what       what am I subscribing too inside the system
+     * @param args       other args int the form of {key0, value0, key1, value1...}
      * @return the sub parcel
      */
-    public static Parcel SubscribeChange(Subscriber subscriber, String system, String what, String... args){
+    public static Parcel SubscribeChange(Subscriber subscriber, String system, String what, String... args) {
         Parcel p = new Parcel();
 
         p.put(PS.GenericPS.OP_KEY, PS.GenericPS.SUB_COMMAND);
@@ -57,23 +62,23 @@ public class PP {
 
     /**
      * Subscribe to a systems get call
+     *
      * @param subscriber who is subsribing
-     * @param system what system am I subscribing too
+     * @param system     what system am I subscribing too
      * @return the sub parcel
      */
-    public static Parcel SubscribeAlert(Subscriber subscriber, String system){
+    public static Parcel SubscribeAlert(Subscriber subscriber, String system) {
         Parcel p = new Parcel();
         p.put(PS.GenericPS.SUBSCRIBER_KEY, subscriber);
         p.put(PS.GenericPS.SYSTEM_KEY, system);
-        p.put(PS.GenericPS.SUB_TYPE_KEY,  PS.GenericPS.SUB_ALERT_TYPE);
+        p.put(PS.GenericPS.SUB_TYPE_KEY, PS.GenericPS.SUB_ALERT_TYPE);
         return p;
     }
 
 
-
     public static class ChromecastPP {
 
-        public static Parcel PlayRadioParcel( String castName, String stationID){
+        public static Parcel PlayRadioParcel(String castName, String stationID) {
             Parcel p = new Parcel();
             p.put(PS.GenericPS.SYSTEM_KEY, PS.CHROMECAST_SYSTEM_NAME);
             p.put(PS.GenericPS.OP_KEY, PS.ChromeCastPS.PLAY_COMMAND);
@@ -94,20 +99,41 @@ public class PP {
         */
     }
 
-    public static class NetworkPP{
-        public static Parcel SubscribeToIp(Subscriber subscriber, String device){
+    public static class NetworkPP {
+        public static Parcel SubscribeToIp(Subscriber subscriber, String device) {
             return SubscribeChange(subscriber, PS.NETWORK_SYSTEM_NAME, PS.NetworkSystemStrings.IP_KEY, PS.NetworkSystemStrings.DEVICE_KEY, device);
         }
-        public static Parcel GetIp(String device){
+
+        public static Parcel GetIp(String device) {
             return GetSystemValue(PS.NETWORK_SYSTEM_NAME, PS.NetworkSystemStrings.IP_KEY, PS.NetworkSystemStrings.DEVICE_KEY, device);
         }
-        public static Parcel SubscribeToConnected(Subscriber subscriber, String device){
+
+        public static Parcel SubscribeToConnected(Subscriber subscriber, String device) {
             return SubscribeChange(subscriber, PS.NETWORK_SYSTEM_NAME, PS.NetworkSystemStrings.CONNECTED_KEY, PS.NetworkSystemStrings.DEVICE_KEY, device);
         }
-        public static Parcel GetConnected(String device){
+
+        public static Parcel GetConnected(String device) {
             return GetSystemValue(PS.NETWORK_SYSTEM_NAME, PS.NetworkSystemStrings.CONNECTED_KEY, PS.NetworkSystemStrings.DEVICE_KEY, device);
         }
     }
 
+    public static class IFTWTTDT {
+        public static Parcel ifConditional(Parcel conditionParcel, Parcel result, boolean conditionalValue, Parcel doThis) {
+            return generateConditional(CONDITIONAL_IF, conditionParcel, result, conditionalValue, doThis);
+        }
 
+        public static Parcel generateConditional(String condition, Parcel conditionParcel, Parcel result, boolean conditionalValue, Parcel doThis) {
+            Parcel p = new Parcel();
+            p.put(CONDITIONAL_KEY, condition);
+            p.put(CONDITIONAL_PARCEL_KEY, conditionParcel);
+            p.put(CONDITIONAL_RESULT_KEY, result);
+            p.put(CONDITIONAL_DO_KEY, doThis);
+            p.put(CONDITIONAL_VALUE_KEY, conditionalValue);
+            return p;
+        }
+
+        public static Parcel switchConditional(Parcel conditionParcel, Parcel result, boolean conditionalValue, Parcel doThis) {
+            return generateConditional(CONDTIONAL_SWICH, conditionParcel, result, conditionalValue, doThis);
+        }
+    }
 }

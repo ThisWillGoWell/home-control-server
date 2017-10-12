@@ -183,6 +183,19 @@ public class PS {
             PRESETS_KEY     = "presets",
             PRESS_OP        ="press",
             PRESET_UPDATE   = "preset";
+    }
+
+    public static class IFTTT{
+        public static final String
+                CONDITIONAL_PARCEL_KEY = "conditionalParcel",
+                CONDITIONAL_KEY = "conditional",
+                CONDITIONAL_RESULT_KEY = "result",
+                CONDITIONAL_IF = "if",
+                CONDTIONAL_SWICH = "switch",
+                CONDITIONAL_DO_KEY = "doThis",
+                CONDITIONAL_VALUE_KEY = "condtionalValue";
+
+
 
 
     }
