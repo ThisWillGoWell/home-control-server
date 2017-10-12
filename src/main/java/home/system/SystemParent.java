@@ -87,24 +87,29 @@ public abstract class SystemParent implements Runnable, Subscriber, Publisher {
         Parcel response = null;
         Logger.log(this,p);
         try {
-            switch (p.getString(GenericPS.OP_KEY)){
-                default:
-                    return process(p);
-                case SUB_COMMAND:
-                    registerSubscriber(p);
-                    response=  Parcel.RESPONSE_PARCEL("register success");
-                    break;
-                case DEREGISTER_COMMAND:
-                    deregisterSubscriber(p.getSubscriber("subscriber"));
-                    response = Parcel.RESPONSE_PARCEL("deregister success");
-                    break;
-                case UPDATE_COMMAND:
-                    update();
-                    response = Parcel.RESPONSE_PARCEL("updated");
-                    break;
-                case HELLO_COMMAND:
-                    response = Parcel.RESPONSE_PARCEL("hi");
-                    break;
+            if(p.contains(OP_KEY)) {
+                switch (p.getString(GenericPS.OP_KEY)) {
+                    default:
+                        return process(p);
+                    case SUB_COMMAND:
+                        registerSubscriber(p);
+                        response = Parcel.RESPONSE_PARCEL("register success");
+                        break;
+                    case DEREGISTER_COMMAND:
+                        deregisterSubscriber(p.getSubscriber("subscriber"));
+                        response = Parcel.RESPONSE_PARCEL("deregister success");
+                        break;
+                    case UPDATE_COMMAND:
+                        update();
+                        response = Parcel.RESPONSE_PARCEL("updated");
+                        break;
+                    case HELLO_COMMAND:
+                        response = Parcel.RESPONSE_PARCEL("hi");
+                        break;
+                }
+            }
+            else{
+                return process(p);
             }
         } catch (SystemException e) {
             Logger.log(this, e);
