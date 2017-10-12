@@ -100,25 +100,6 @@ public class Application extends SpringBootServletInitializer{
     }
 
 
-    @RequestMapping(value = "/spotifyRD", method = RequestMethod.GET)
-    public Object command(@RequestParam Map<String,String> allRequestParams, ModelMap model ) {
-        Parcel requset = null;
-        try {
-            requset = Parcel.SET_PARCEL("spotify","userCode",Parcel.PROCESS_MAP(allRequestParams).getString("code"));
-        } catch (SystemException e1) {
-            e1.printStackTrace();
-        }
-        Parcel p = e.digestParcel(requset);
-        if(p.success()){
-            e.digestParcel(Parcel.OP_PARCEL("login"));
-        }
-        try {
-            String s = (String) p.toPayload();
-            return p.toPayload();
-        } catch (SystemException e1) {
-            return Parcel.RESPONSE_PARCEL_ERROR(e1);
-        }
-    }
 
     public static String readFile(String path, Charset encoding)
             throws IOException

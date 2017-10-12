@@ -182,10 +182,11 @@ abstract class HueMotionScene implements Runnable {
             private int currentHue;
             private double stepHueTrans;
             private boolean takeLongWay;
+            private int transamount;
             HueFade(String lightId, long updateInterval){
                 this.currentHue = ThreadLocalRandom.current().nextInt(0, 360 + 1);
                 this.nextHue();
-                takeLongWay = true
+                takeLongWay = true;
 
             }
 
@@ -194,14 +195,16 @@ abstract class HueMotionScene implements Runnable {
                 this.currentSpeed = ThreadLocalRandom.current().nextInt(10000, 30000);
                 int numberOfSteps = (int) (currentSpeed / updateInterval);
                 if(Math.abs(targetHue - currentHue) > 180)
-                this.transAmount = targetHue - currentHue / numberOfSteps;
+                this.transamount = targetHue - currentHue / numberOfSteps;
                 if(takeLongWay){
-                    this
+
                 }
             }
 
             void step(){
-                if(currentHue
+                if(currentHue == 1){
+
+                }
             }
 
         }
