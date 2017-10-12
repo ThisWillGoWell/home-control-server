@@ -1,5 +1,7 @@
 package home.parcel;
 
+import javax.swing.plaf.nimbus.State;
+
 /**
  * Created by Willi on 12/30/2016.
  */
@@ -18,7 +20,7 @@ public class StateValue{
         this.value = o;
     }
 
-    StateValue(StateValue sp) throws SystemException {
+    public StateValue(StateValue sp) {
         this.privlage= sp.privlage;
         this.value = sp.value;
     }
