@@ -6,7 +6,10 @@ public class PS {
     public static final String
         NETWORK_SYSTEM_NAME     = "network",
         CHROMECAST_SYSTEM_NAME  = "chromecast",
-        IR_REMOTE_SYSTEM_NAME   = "irRemote";
+        IR_REMOTE_SYSTEM_NAME   = "irRemote",
+        CONDITIONAL_SYSTEM_NAME = "conditional",
+        HOME_STATE_SYSTEM_NAME  = "homeState";
+
 
 
 
@@ -235,12 +238,13 @@ public class PS {
                 CONDITIONAL_KEY = "conditional",
                 CONDITIONAL_RESULT_KEY = "result",
                 CONDITIONAL_IF = "if",
-                CONDTIONAL_SWICH = "switch",
+                COGNITIONAL_SWITCH = "switch",
                 CONDITIONAL_DO_KEY = "doThis",
-                CONDITIONAL_VALUE_KEY = "condtionalValue";
-
-
-
-
+                CONDITIONAL_VALUE_KEY = "conditionalValue";
+    }
+    public static class HomeState{
+        public static final String
+                IS_WILL_HERE_KEY = "isWillHere";
     }
 }
+

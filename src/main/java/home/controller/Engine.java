@@ -6,7 +6,9 @@ import home.parcel.ParcelArray;
 import home.system.chromecast.ChromeCastSystem;
 import home.system.clockDisplay.ClockDisplaySystem;
 import home.system.coffee.Coffee;
+import home.system.condtional.ConditionalSystem;
 import home.system.engineManager.EngineManagement;
+import home.system.homeState.HomeStateSystem;
 import home.system.hvac.HvacSystem;
 import home.system.irRemote.IrRemote;
 import home.system.mediaManager.MediaManager;
@@ -25,6 +27,9 @@ import java.text.SimpleDateFormat;
 
 import java.util.Calendar;
 import java.util.HashMap;
+
+import static home.controller.PS.CONDITIONAL_SYSTEM_NAME;
+import static home.controller.PS.HOME_STATE_SYSTEM_NAME;
 
 /**
  * Created by Will on 9/3/2016.
@@ -119,6 +124,11 @@ public class Engine{
                 return new ChromeCastSystem(this);
             case MediaManager.systemIdentifier:
                 return new MediaManager(this);
+            case CONDITIONAL_SYSTEM_NAME:
+                return new ConditionalSystem(this);
+            case HOME_STATE_SYSTEM_NAME:
+                return new HomeStateSystem();
+
 
             default:
                 throw SystemException.ENGINE_EXCEPTION("State Type not decoded:" + type);

@@ -117,7 +117,7 @@ public class PP {
         }
     }
 
-    public static class IFTWTTDT {
+    public static class Conditional {
         public static Parcel ifConditional(Parcel conditionParcel, Parcel result, boolean conditionalValue, Parcel doThis) {
             return generateConditional(CONDITIONAL_IF, conditionParcel, result, conditionalValue, doThis);
         }
@@ -133,7 +133,7 @@ public class PP {
         }
 
         public static Parcel switchConditional(Parcel conditionParcel, Parcel result, boolean conditionalValue, Parcel doThis) {
-            return generateConditional(CONDTIONAL_SWICH, conditionParcel, result, conditionalValue, doThis);
+            return generateConditional(COGNITIONAL_SWITCH, conditionParcel, result, conditionalValue, doThis);
         }
     }
 }
